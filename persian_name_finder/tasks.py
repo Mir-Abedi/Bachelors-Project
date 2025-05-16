@@ -2,11 +2,13 @@ from langchain_ollama import ChatOllama
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode
+from celery import shared_task
 
 from tools.crawl import web_crawler as wc
 from tools.scholar import get_home_page as ghp
 from tools.scholar import get_author_interests as gai
 from utils.config import config
+from utils.starting_prompt import StartingPrompt
 
 
 @tool
@@ -53,40 +55,7 @@ def web_crawler(url: str) -> str:
     """
     return wc(url)
 
-class StartingPrompt:
-    def __init__(self):
-        self.urls = [
-            # "https://icml.cc/virtual/2024/papers.html?filter=titles",
-            "https://mir-abedi.github.io/names.html",
-        ]
-        self.system_prompt = """You are an expert at identifying Iranian authors and researchers.
 
-You have access to these tools:
-- web_crawler: Gets the contents of a webpage given its URL
-- get_home_page: Finds an author's homepage URL
-- get_author_interests: Gets an author's research interests
-
-do all the steps in the following order:
-1. use web_crawler to get the webpage contents
-2. identify any authors with Iranian/Persian names
-3. for each Iranian author found:
-   - get their homepage with get_home_page
-   - get their interests with get_author_interests
-finally, return the list of authors with their information in the exact format specified above
-For each author you identify, you must return results in this exact JSON format:
-{
-    'name': [author's full name],
-    'homepage': [result from get_home_page tool], 
-    'interests': [result from get_author_interests tool]
-}
-only return the JSON object, nothing else.
-"""
-
-        self.prompt = """Please analyze {URL} to retrieve Iranian/Persian authors"""
-
-    def __iter__(self):
-        for url in self.urls:
-            yield [("system", self.system_prompt), ("human", self.prompt.format(URL=url))]
         
 tools = [web_crawler, get_home_page, get_author_interests]
 tool_node = ToolNode(tools)
