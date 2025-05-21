@@ -1,11 +1,15 @@
 from django.contrib import admin
-from .models import WebPage, Author
+from webpages.models import WebPage, Author, WebPagePart
 
 class WebPageAdmin(admin.ModelAdmin):
     list_display = ('url', 'crawled_at')
     search_fields = ('url',)
     list_filter = ('crawled_at',)
     ordering = ('-crawled_at',)
+
+class WebPagePartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'page')
+    list_filter = ('page__crawled_at', 'is_done')
 
 class AuthorAdmin(admin.ModelAdmin):
     list_display = ('name', 'page', 'interests', 'homepage', 'email', 'sent_email')
@@ -15,3 +19,4 @@ class AuthorAdmin(admin.ModelAdmin):
     
 admin.site.register(WebPage, WebPageAdmin)
 admin.site.register(Author, AuthorAdmin)
+admin.site.register(WebPagePart, WebPagePartAdmin)

@@ -1,9 +1,6 @@
 from playwright.sync_api import sync_playwright
 import re
-# from utils.config import config
-
-# CHARACTER_LIMIT = int(config("CHARACTER_LIMIT"))
-CHARACTER_LIMIT = 1000
+import time
 
 def web_crawler(url: str) -> str:
     """
@@ -14,14 +11,15 @@ def web_crawler(url: str) -> str:
         page = browser.new_page()
 
         page.goto(url, wait_until="networkidle")
+        time.sleep(20)
         content = page.content()
         browser.close()
     pattern = r'\b\w*\d+\w*\b'
     content = re.sub(pattern, '', content)
     content = re.sub(r'[ \t]+', ' ', content)
     content = re.sub(r'\n[ \n]+', '\n', content)
-    print(len(content))
-    return content[:CHARACTER_LIMIT] 
+    content = re.sub(r'<(script|style)[^>]*>[\s\S]*?<\/\1>', '', content, flags=re.IGNORECASE)
+    return content 
 
 if __name__ == "__main__":
     # Example usage 
