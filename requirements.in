@@ -10,3 +10,5 @@ scholarly
 django
 celery
 redis
+pyalex
+langchain_google_genai

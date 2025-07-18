@@ -2,6 +2,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode
+from langchain_google_genai import ChatGoogleGenerativeAI
 from celery import shared_task
 import time
 import re
@@ -9,11 +10,12 @@ import re
 from django.utils import timezone
 from django.db import transaction
 
-from tools.crawl import web_crawler as wc
-from tools.scholar import get_home_page as ghp
-from tools.scholar import get_author_interests as gai
+from tools.crawl import web_crawler as web_crawler_tool
+from tools.scholar import get_home_page as get_home_page_tool_scholar
+from tools.scholar import get_author_interests as get_author_interests_scholar
+from tools.open_alex import get_author_interests as get_author_interests_open_alex
 from utils.config import config
-from utils.starting_prompt import AnalyzePageStartingPrompt
+from utils.open_alex_prompt import AnalyzePageStartingPrompt
 from webpages.models import WebPage, WebPagePart, Author
 
 CURRENT_WEB_PAGE = None
@@ -33,7 +35,7 @@ def get_home_page(author_name: str) -> str:
     Returns:
         str: A string containing the author's home page url
     """
-    return ghp(author_name)
+    return get_home_page_tool_scholar(author_name)
 
 @tool
 def get_author_interests(author_name: str) -> str:
@@ -48,7 +50,7 @@ def get_author_interests(author_name: str) -> str:
     Returns:
         str: A string containing the author's research interests
     """
-    return gai(author_name)
+    return get_author_interests_open_alex(author_name)
 
 @tool
 def web_crawler(url: str) -> str:
@@ -62,7 +64,7 @@ def web_crawler(url: str) -> str:
     Returns:
         str: Contents of the website.
     """
-    return wc(url)
+    return web_crawler_tool(url)
 
 @tool
 def save_author(name: str, interests: str = None, homepage: str = None) -> str:
@@ -95,14 +97,14 @@ def analyze_web_pages():
     while True:
         for webpage in WebPage.objects.filter(parts__is_done=False).iterator(chunk_size=10):
             CURRENT_WEB_PAGE = webpage
-            analyze_webpage_for_authors(webpage)
+            analyze_webpage_for_authors_gemini(webpage)
         time.sleep(10)
     
 def analyze_webpage_for_authors(webpage: WebPage):
     starting_prompt = AnalyzePageStartingPrompt(webpage=webpage)
 
     for prompt in starting_prompt:
-        tools = [get_home_page, get_author_interests, save_author]
+        tools = [get_author_interests, save_author]
         tool_node = ToolNode(tools)
 
         model_with_tools = ChatOllama(model=MODEL).bind_tools(tools)
@@ -141,6 +143,51 @@ def analyze_webpage_for_authors(webpage: WebPage):
             for message in chunk["messages"]:
                 message.pretty_print()
 
+def analyze_webpage_for_authors_gemini(webpage: WebPage):
+    starting_prompt = AnalyzePageStartingPrompt(webpage=webpage)
+
+    for prompt in starting_prompt:
+        tools = [get_author_interests, save_author]
+        tool_node = ToolNode(tools)
+
+        model_with_tools = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash-latest",
+            temperature=0.1
+        ).bind_tools(tools)
+
+        def should_continue(state: MessagesState):
+            messages = state["messages"]
+            last_message = messages[-1]
+            # Check if there are any tool calls in the last message
+            if last_message.tool_calls and len(last_message.tool_calls) > 0:
+                # Process all tool calls
+                return "tools"
+            return END
+
+
+        def call_model(state: MessagesState):
+            messages = state["messages"]
+            response = model_with_tools.invoke(messages)
+            return {"messages": [response]}
+
+
+        workflow = StateGraph(MessagesState)
+
+        # Define the two nodes we will cycle between
+        workflow.add_node("agent", call_model)
+        workflow.add_node("tools", tool_node)
+
+        workflow.add_edge(START, "agent")
+        workflow.add_conditional_edges("agent", should_continue, ["tools", END])
+        workflow.add_edge("tools", "agent")
+
+        app = workflow.compile()
+
+        for chunk in app.stream(
+            {"messages": prompt}, stream_mode="values"
+        ):
+            for message in chunk["messages"]:
+                message.pretty_print()
 
 def get_web_page_parts(webpage: WebPage) -> list[WebPagePart]:
     html = webpage.raw_html
@@ -202,7 +249,7 @@ def crawl_web_pages():
     while True:
         for webpage in WebPage.objects.filter(raw_html="").iterator(chunk_size=10):
             print(f"Crawling {webpage.url}")
-            webpage.raw_html = wc(webpage.url)
+            webpage.raw_html = web_crawler_tool(webpage.url)
             webpage.crawled_at = timezone.now()
             webpage.save()
         time.sleep(10)
