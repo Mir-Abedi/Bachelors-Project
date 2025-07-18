@@ -94,11 +94,11 @@ def save_author(name: str, interests: str = None, homepage: str = None) -> str:
 @shared_task
 def analyze_web_pages():
     global CURRENT_WEB_PAGE
-    while True:
-        for webpage in WebPage.objects.filter(parts__is_done=False).iterator(chunk_size=10):
-            CURRENT_WEB_PAGE = webpage
-            analyze_webpage_for_authors_gemini(webpage)
-        time.sleep(10)
+    webpage = WebPage.objects.filter(parts__is_done=False).first()
+    CURRENT_WEB_PAGE = webpage
+    analyze_webpage_for_authors_gemini(webpage)
+    time.sleep(5)
+    analyze_web_pages.delay()
     
 def analyze_webpage_for_authors(webpage: WebPage):
     starting_prompt = AnalyzePageStartingPrompt(webpage=webpage)
@@ -236,23 +236,23 @@ def get_web_page_parts(webpage: WebPage) -> list[WebPagePart]:
 
 @shared_task
 def create_web_page_parts():
-    while True:
-        for webpage in WebPage.objects.filter(parts__isnull=True).exclude(raw_html="").iterator(chunk_size=10):
-            print(f"Creating parts for {webpage.url}")
-            with transaction.atomic():
-                webpage_parts = get_web_page_parts(webpage)
-                WebPagePart.objects.bulk_create(webpage_parts)
-        time.sleep(10)
+        webpage = WebPage.objects.filter(parts__isnull=True).exclude(raw_html="").first()
+        print(f"Creating parts for {webpage.url}")
+        with transaction.atomic():
+            webpage_parts = get_web_page_parts(webpage)
+            WebPagePart.objects.bulk_create(webpage_parts)
+        time.sleep(5)
+        create_web_page_parts.delay()
 
 @shared_task
 def crawl_web_pages():
-    while True:
-        for webpage in WebPage.objects.filter(raw_html="").iterator(chunk_size=10):
-            print(f"Crawling {webpage.url}")
-            webpage.raw_html = web_crawler_tool(webpage.url)
-            webpage.crawled_at = timezone.now()
-            webpage.save()
-        time.sleep(10)
+    webpage = WebPage.objects.filter(raw_html="").first()
+    print(f"Crawling {webpage.url}")
+    webpage.raw_html = web_crawler_tool(webpage.url)
+    webpage.crawled_at = timezone.now()
+    webpage.save()
+    time.sleep(5)
+    crawl_web_pages.delay()
 
 crawl_web_pages.delay()
 create_web_page_parts.delay()
