@@ -101,7 +101,10 @@ def analyze_web_pages():
             analyze_web_pages.delay()
             return
         CURRENT_WEB_PAGE = webpage
-        analyze_webpage_for_authors_gemini(webpage)
+        if config("USE_GEMINI"):
+            analyze_webpage_for_authors_gemini(webpage)
+        else:
+            analyze_webpage_for_authors(webpage)
         time.sleep(5)
         analyze_web_pages.delay()
     except Exception as e:
