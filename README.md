@@ -6,4 +6,18 @@ source llm-agent/bin/activate
 pip install -r requirements.txt
 ```
 
-Then run `agent.py` for your results.
+```
+playwright install
+playwright install-deps
+```
+
+```
+sudo apt install redis-server
+celery -A persian_name_finder --concurrency=1 -l info
+```
+
+Then finally
+```
+python3 manage.py migrate
+python3 manage.py runserver
+```
