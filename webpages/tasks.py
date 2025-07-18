@@ -95,6 +95,10 @@ def save_author(name: str, interests: str = None, homepage: str = None) -> str:
 def analyze_web_pages():
     global CURRENT_WEB_PAGE
     webpage = WebPage.objects.filter(parts__is_done=False).first()
+    if not webpage:
+        time.sleep(5)
+        analyze_web_pages.delay()
+        return
     CURRENT_WEB_PAGE = webpage
     analyze_webpage_for_authors_gemini(webpage)
     time.sleep(5)
@@ -237,6 +241,10 @@ def get_web_page_parts(webpage: WebPage) -> list[WebPagePart]:
 @shared_task
 def create_web_page_parts():
         webpage = WebPage.objects.filter(parts__isnull=True).exclude(raw_html="").first()
+        if not webpage:
+            time.sleep(5)
+            create_web_page_parts.delay()
+            return
         print(f"Creating parts for {webpage.url}")
         with transaction.atomic():
             webpage_parts = get_web_page_parts(webpage)
@@ -247,6 +255,10 @@ def create_web_page_parts():
 @shared_task
 def crawl_web_pages():
     webpage = WebPage.objects.filter(raw_html="").first()
+    if not webpage:
+        time.sleep(5)
+        crawl_web_pages.delay()
+        return
     print(f"Crawling {webpage.url}")
     webpage.raw_html = web_crawler_tool(webpage.url)
     webpage.crawled_at = timezone.now()
