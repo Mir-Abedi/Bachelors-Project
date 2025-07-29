@@ -164,8 +164,8 @@ def analyze_webpage_for_authors_gemini(webpage: WebPage):
         tool_node = ToolNode(tools)
 
         model_with_tools = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash-latest",
-            temperature=0.1
+            model=config("GEMINI_MODEL"),
+            temperature=0.1,
         ).bind_tools(tools)
 
         def should_continue(state: MessagesState):
