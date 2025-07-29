@@ -12,3 +12,5 @@ celery
 redis
 pyalex
 langchain_google_genai
+langchain-openai
+pydantic
