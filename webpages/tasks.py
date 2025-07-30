@@ -62,12 +62,12 @@ class SaveAuthorInput(BaseModel):
     author_name = Field(..., description="Full name of the author to be saved")
 
 @tool(args_schema=SaveAuthorInput)
-def save_author(name: str, interests: str = None, homepage: str = None) -> str:
+def save_author(author_name: str) -> str:
     """Saves the author in database.
     """
     try:
         Author.objects.create(
-            name=name,
+            name=author_name,
             interests=None,
             homepage=None,
             page=CURRENT_WEB_PAGE,
