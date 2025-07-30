@@ -38,7 +38,7 @@ def get_home_page(author_name: str) -> str:
 class GetInterestsInput(BaseModel):
     author_name: str = Field(..., description="Full name of the author to get interests for")
 
-@tool(GetInterestsInput)
+@tool(args_schema=GetInterestsInput)
 def get_author_interests(author_name: str) -> str:
     """
     Get the research interests of the author.
