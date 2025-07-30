@@ -25,7 +25,7 @@ CURRENT_WEB_PAGE = None
 
 ### Get Home Page Tool
 class GetHomePageInput(BaseModel):
-    author_name = Field(..., description="Full Name of the author to get home page for")
+    author_name: str = Field(..., description="Full Name of the author to get home page for")
 
 @tool(args_schema=GetHomePageInput)
 def get_home_page(author_name: str) -> str:
@@ -36,7 +36,7 @@ def get_home_page(author_name: str) -> str:
 
 ### Get Author Interests Tool
 class GetInterestsInput(BaseModel):
-    author_name = Field(..., description="Full name of the author to get interests for")
+    author_name: str = Field(..., description="Full name of the author to get interests for")
 
 @tool(GetInterestsInput)
 def get_author_interests(author_name: str) -> str:
@@ -48,7 +48,7 @@ def get_author_interests(author_name: str) -> str:
 
 ### Web Crawler Tool
 class WebCrawlerInput(BaseModel):
-    url = Field(..., description="URL of the website to be crawled")
+    url: str = Field(..., description="URL of the website to be crawled")
 
 @tool(args_schema=WebCrawlerInput)
 def web_crawler(url: str) -> str:
@@ -59,7 +59,7 @@ def web_crawler(url: str) -> str:
 
 ### Save Author Tool
 class SaveAuthorInput(BaseModel):
-    author_name = Field(..., description="Full name of the author to be saved")
+    author_name: str = Field(..., description="Full name of the author to be saved")
 
 @tool(args_schema=SaveAuthorInput)
 def save_author(author_name: str) -> str:
