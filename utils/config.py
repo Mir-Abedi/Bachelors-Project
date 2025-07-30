@@ -16,6 +16,8 @@ def config(key: str) -> str:
         raise KeyError(f"Configuration key '{key}' not found in .env file.")
     if os.getenv(key).lower() in ["false", "true", "1", "0"]:
         return os.getenv(key).lower() == "true" or os.getenv(key) == "1"
+    if os.getenv(key).isdigit():
+        return int(os.getenv(key))
     return os.getenv(key)
 
 
