@@ -1,6 +1,7 @@
 import pyalex
 from pyalex import Authors
 from time import sleep
+from functools import cache
 
 
 MAX_INTERESTS_COUNT = 5
@@ -24,11 +25,12 @@ def get_author_interests(author_name: str) -> str:
         print(f"Error retrieving interests: {str(e)}")
         return "No interests found for author"
 
+@cache
 def get_author_dict(author_name: str):
     pyalex.config.email = "amirhoseinabedi80@gmail.com" #todo: round robin for max usage
     return Authors().search_filter(display_name=author_name).get()[0]
 
 if __name__ == "__main__":
     # Example usage
-    author_name = "Andrew NG"
+    author_name = "Sadegh Farhadkhani"
     print(get_author_interests(author_name))
