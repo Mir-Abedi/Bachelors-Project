@@ -1,11 +1,6 @@
 from scholarly import scholarly, ProxyGenerator
 from functools import cache
 
-pg = ProxyGenerator()
-success = pg.ScraperAPI(API_KEY="391cac7f24f5d013fc34880390c43804")
-print(success)
-scholarly.use_proxy(pg)
-
 def get_home_page(author_name: str) -> str:
     """
     Get the url of the home page of the author"""
@@ -30,6 +25,10 @@ def get_author_interests(author_name: str) -> str:
 def get_author_dict(author_name: str):
     """
     Get the author dictionary from scholarly"""
+    pg = ProxyGenerator()
+    success = pg.ScraperAPI(API_KEY="391cac7f24f5d013fc34880390c43804")
+    print(success)
+    scholarly.use_proxy(pg)
     search_query = scholarly.search_author(author_name)
     author = next(search_query, None)
     if author:
