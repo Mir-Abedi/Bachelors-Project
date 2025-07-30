@@ -2,7 +2,7 @@ from scholarly import scholarly, ProxyGenerator
 from functools import cache
 
 pg = ProxyGenerator()
-success = pg.FreeProxies()
+success = pg.ScraperAPI(API_KEY="391cac7f24f5d013fc34880390c43804")
 print(success)
 scholarly.use_proxy(pg)
 
