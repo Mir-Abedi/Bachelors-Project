@@ -124,3 +124,18 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
+CELERY_BEAT_SCHEDULE = {
+    "run-analyze-every-30-seconds": {
+        "task": "webpages.tasks.analyze_web_pages",
+        "schedule": 30.0,
+    },
+    "run-create-parts-every-30-seconds": {
+        "task": "webpages.tasks.create_web_page_parts",
+        "schedule": 30.0,
+    },
+    "run-crawl-every-30-seconds": {
+        "task": "webpages.tasks.crawl_web_pages",
+        "schedule": 30.0,
+    },
+}

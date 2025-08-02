@@ -8,6 +8,7 @@ from celery import shared_task
 import time
 import re
 import os
+from contextlib import contextmanager
 
 from django.utils import timezone
 from django.db import transaction
@@ -20,6 +21,7 @@ from utils.config import config
 from utils.open_alex_prompt import AnalyzePageStartingPrompt
 from webpages.models import WebPage, WebPagePart, Author
 from pydantic import BaseModel, Field
+import redis
 
 CURRENT_WEB_PAGE = None
 
@@ -76,9 +78,9 @@ def save_author(author_name: str) -> str:
     except Exception as e:
         return "Author not saved"
     
-@shared_task
+@shared_task(time_limit=3600*3)
 def analyze_web_pages():
-    try:
+    with redis_lock("analyzing_web_pages", ttl=3600*4):
         global CURRENT_WEB_PAGE
         webpage = WebPage.objects.filter(parts__is_done=False).first()
         if not webpage:
@@ -87,12 +89,6 @@ def analyze_web_pages():
             return
         CURRENT_WEB_PAGE = webpage
         analyze_webpage_for_authors(webpage)
-        time.sleep(5)
-        analyze_web_pages.delay()
-    except Exception as e:
-        time.sleep(5)
-        analyze_web_pages.delay()
-        raise e
 
 def analyze_webpage_for_authors(webpage: WebPage):
     starting_prompt = AnalyzePageStartingPrompt(webpage=webpage)
@@ -197,9 +193,9 @@ def get_web_page_parts(webpage: WebPage) -> list[WebPagePart]:
     return parts
 
 
-@shared_task
+@shared_task(time_limit=3600*3)
 def create_web_page_parts():
-    try:
+    with redis_lock("creating_web_page_parts", ttl=3600*4):
         webpage = WebPage.objects.filter(parts__isnull=True).exclude(raw_html="").first()
         if not webpage:
             time.sleep(5)
@@ -209,16 +205,10 @@ def create_web_page_parts():
         with transaction.atomic():
             webpage_parts = get_web_page_parts(webpage)
             WebPagePart.objects.bulk_create(webpage_parts)
-        time.sleep(5)
-        create_web_page_parts.delay()
-    except Exception as e:
-        time.sleep(5)
-        create_web_page_parts.delay()
-        raise e
 
-@shared_task
+@shared_task(time_limit=3600*3)
 def crawl_web_pages():
-    try:
+    with redis_lock("crawling_web_pages", ttl=3600*4):
         webpage = WebPage.objects.filter(raw_html="").first()
         if not webpage:
             time.sleep(5)
@@ -228,13 +218,14 @@ def crawl_web_pages():
         webpage.raw_html = web_crawler_tool(webpage.url)
         webpage.crawled_at = timezone.now()
         webpage.save()
-        time.sleep(5)
-        crawl_web_pages.delay()
-    except Exception as e:
-        time.sleep(5)
-        crawl_web_pages.delay()
-        raise e
 
-crawl_web_pages.delay()
-create_web_page_parts.delay()
-analyze_web_pages.delay()
+@contextmanager
+def redis_lock(key, ttl=3600*4):
+    redis_client = redis.Redis(host='localhost', port=6379, db=0)
+    if redis_client.set(key, "locked", ex=ttl, nx=True):
+        try:
+            yield
+        finally:
+            redis_client.delete(key)
+    else:
+        yield
