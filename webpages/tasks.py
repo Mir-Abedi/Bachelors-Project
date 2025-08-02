@@ -83,12 +83,9 @@ def analyze_web_pages():
     with redis_lock("analyzing_web_pages", ttl=3600*4):
         global CURRENT_WEB_PAGE
         webpage = WebPage.objects.filter(parts__is_done=False).first()
-        if not webpage:
-            time.sleep(5)
-            analyze_web_pages.delay()
-            return
-        CURRENT_WEB_PAGE = webpage
-        analyze_webpage_for_authors(webpage)
+        if webpage:
+            CURRENT_WEB_PAGE = webpage
+            analyze_webpage_for_authors(webpage)
 
 def analyze_webpage_for_authors(webpage: WebPage):
     starting_prompt = AnalyzePageStartingPrompt(webpage=webpage)
@@ -197,27 +194,21 @@ def get_web_page_parts(webpage: WebPage) -> list[WebPagePart]:
 def create_web_page_parts():
     with redis_lock("creating_web_page_parts", ttl=3600*4):
         webpage = WebPage.objects.filter(parts__isnull=True).exclude(raw_html="").first()
-        if not webpage:
-            time.sleep(5)
-            create_web_page_parts.delay()
-            return
-        print(f"Creating parts for {webpage.url}")
-        with transaction.atomic():
-            webpage_parts = get_web_page_parts(webpage)
-            WebPagePart.objects.bulk_create(webpage_parts)
+        if webpage:
+            print(f"Creating parts for {webpage.url}")
+            with transaction.atomic():
+                webpage_parts = get_web_page_parts(webpage)
+                WebPagePart.objects.bulk_create(webpage_parts)
 
 @shared_task(time_limit=3600*3)
 def crawl_web_pages():
     with redis_lock("crawling_web_pages", ttl=3600*4):
         webpage = WebPage.objects.filter(raw_html="").first()
-        if not webpage:
-            time.sleep(5)
-            crawl_web_pages.delay()
-            return
-        print(f"Crawling {webpage.url}")
-        webpage.raw_html = web_crawler_tool(webpage.url)
-        webpage.crawled_at = timezone.now()
-        webpage.save()
+        if webpage:
+            print(f"Crawling {webpage.url}")
+            webpage.raw_html = web_crawler_tool(webpage.url)
+            webpage.crawled_at = timezone.now()
+            webpage.save()
 
 @contextmanager
 def redis_lock(key, ttl=3600*4):
