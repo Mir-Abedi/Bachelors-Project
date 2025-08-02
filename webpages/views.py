@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from webpages.models import WebPage, Author, WebPagePart
 from webpages.forms import WebPageForm
 from django.shortcuts import redirect
+from django.db.models import Count, Q
 
 def index(request):
     """
@@ -29,6 +30,15 @@ class WebPageListView(ListView):
     template_name = 'webpages/webpages.html'
     context_object_name = 'webpages'
     paginate_by = 10  # Show 10 webpages per page
+
+    def get_queryset(self):
+        """
+        Override the default queryset to annotate the number of parts for each webpage.
+        """
+        return WebPage.objects.annotate(
+            parts_count=Count('parts'),
+            parts_done=Count('parts', filter=Q(parts__done=True))
+        ).order_by('id')
 
 
 def add_webpage(request):
