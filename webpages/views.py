@@ -37,7 +37,7 @@ class WebPageListView(ListView):
         """
         return WebPage.objects.annotate(
             parts_count=Count('parts'),
-            parts_done=Count('parts', filter=Q(parts__done=True))
+            parts_done=Count('parts', filter=Q(parts__is_done=True))
         ).order_by('id')
 
 
