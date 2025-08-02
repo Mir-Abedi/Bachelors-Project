@@ -1,4 +1,5 @@
 from webpages.models import WebPage
+from utils import config
 
 SYSTEM_PROMPT = """
 You are an AI assistant tasked with processing a fragment of HTML content to identify Persian/Iranian authors and analyze their interests using provided tools. Your goal is to:
@@ -27,9 +28,10 @@ class AnalyzePageStartingPrompt:
         self.webpage = webpage
         self.system_prompt = SYSTEM_PROMPT
         self.prompt = HUMAN_PROMPT
+        self.max_parts = config("MAX_WEB_PAGE_PARTS", cast=int, default=10)
 
     def __iter__(self):
-        for web_page_part in self.webpage.parts.filter(is_done=False).order_by("part_number"):
+        for web_page_part in self.webpage.parts.filter(is_done=False).order_by("part_number").limit(self.max_parts):
             yield [("system", self.system_prompt), ("human", self.prompt.format(content=web_page_part.raw_html))]
             web_page_part.is_done = True
             web_page_part.save()

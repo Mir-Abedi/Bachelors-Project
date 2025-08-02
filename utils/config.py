@@ -1,23 +1,30 @@
 from dotenv import load_dotenv
 import os
 
-def config(key: str) -> str:
+def config(key: str, cast=str, default=None) -> any:
     """
-    Load specific configuration value from .env file
+    Load specific configuration value from .env file with type casting and default value
     
     Args:
         key (str): Configuration key to retrieve
+        cast (type): Type to cast the value to (default: str)
+        default: Default value if key not found (default: None)
         
     Returns:
-        str: Value of the requested configuration key
+        any: Value of the requested configuration key cast to specified type
     """
     load_dotenv()
-    if os.getenv(key) is None:
+    value = os.getenv(key)
+    
+    if value is None:
+        if default is not None:
+            return default
         raise KeyError(f"Configuration key '{key}' not found in .env file.")
-    if os.getenv(key).lower() in ["false", "true", "1", "0"]:
-        return os.getenv(key).lower() == "true" or os.getenv(key) == "1"
-    if os.getenv(key).isdigit():
-        return int(os.getenv(key))
-    return os.getenv(key)
-
+        
+    try:
+        if value.lower() in ["false", "true"]:
+            return value.lower() == "true"
+        return cast(value)
+    except ValueError:
+        raise ValueError(f"Cannot cast value '{value}' to {cast.__name__}")
 
