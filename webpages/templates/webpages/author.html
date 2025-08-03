@@ -13,10 +13,13 @@
                     <div class="author-info">
                         <h3>{{ author.name }}</h3>
                         <p><strong>Email:</strong> {{ author.email }}</p>
-                        <p><strong>Articles:</strong> {{ author.articles.count }}</p>
+                        <p><strong>Webpage:</strong> <a href="/webpage/{{ author.webpage.id }}">author.webpage.url</a></p>
+                        <p><strong>Orc ID:</strong> <a href="/webpage/{{ author.orcid_url }}">ORC ID URL</a></p>
+                        <p><strong>OpenAlex:</strong> <a href="/webpage/{{ author.openalex_url }}">OpenAlex URL</a></p>
+                        <p><strong>works:</strong> webpage.works</p>
+
                     </div>
                     
-                    {% if user.is_authenticated and user.id == author.user_id %}
                     <div class="mt-4">
                         <h4>Update Email</h4>
                         <form method="POST" action="{% url 'update_author_email' author.id %}">
@@ -28,7 +31,6 @@
                             <button type="submit" class="btn btn-primary mt-2">Update Email</button>
                         </form>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>

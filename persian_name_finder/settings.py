@@ -138,4 +138,8 @@ CELERY_BEAT_SCHEDULE = {
         "task": "webpages.tasks.crawl_web_pages",
         "schedule": 30.0,
     },
+    "run-fetch-openalex-every-30-seconds": {
+        "task": "webpages.tasks.fill_open_alex_data",
+        "schedule": 30.0,
+    },
 }

@@ -9,11 +9,9 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-8">
-                    <p><strong>URL:</strong> {{ webpage.url }}</p>
-                    <p><strong>Created:</strong> {{ webpage.created_at }}</p>
-                    <p><strong>Last Modified:</strong> {{ webpage.last_modified }}</p>
-                    <p><strong>Description:</strong></p>
-                    <p>{{ webpage.description }}</p>
+                    <p><strong>URL:</strong> <a href="{{ webpage.url }}">{{ webpage.url }}</a></p>
+                    <p><strong>Created:</strong> {{ webpage.crawled_at }}</p>
+                    <p><strong>Number of Authors:</strong> {{ webpage.authors_count }}</p>
                 </div>
             </div>
         </div>

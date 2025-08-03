@@ -51,7 +51,9 @@ class WebPageDetailView(ListView):
         Override the default queryset to filter parts by the webpage ID.
         """
         webpage_id = self.kwargs.get('pk')
-        return WebPage.objects.get(id=webpage_id)
+        return WebPage.objects.filter(id=webpage_id).annotate(
+            authors_count=Count("authors")
+        ).first()
 
 class AuthorDetailView(ListView):
     model = Author

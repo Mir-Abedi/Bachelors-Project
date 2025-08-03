@@ -5,18 +5,19 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode
 from langchain_google_genai import ChatGoogleGenerativeAI
 from celery import shared_task
-import time
 import re
 import os
 from contextlib import contextmanager
 
 from django.utils import timezone
 from django.db import transaction
+import requests
 
 from tools.crawl import web_crawler as web_crawler_tool
 from tools.scholar import get_home_page as get_home_page_tool_scholar
 from tools.scholar import get_author_interests as get_author_interests_scholar
 from tools.open_alex import get_author_interests as get_author_interests_open_alex
+from tools.open_alex import get_author_dict
 from utils.config import config
 from utils.open_alex_prompt import AnalyzePageStartingPrompt
 from webpages.models import WebPage, WebPagePart, Author
@@ -220,3 +221,16 @@ def redis_lock(key, ttl=3600*4):
             redis_client.delete(key)
     else:
         yield
+
+@shared_task(time_limit=3600*3)
+def fill_open_alex_data():
+    with redis_lock("filling_open_alex_data", ttl=3600*4):
+        author = Author.objects.filter(openalex_called=False).first()
+        if author:
+            d = get_author_dict(author.name)
+            author.orcid_url = d.get("ids", {}).get("orcid", "")
+            author.openalex_url = d.get("ids", {}).get("openalex", "")
+            if d.get("works_api_url"):  
+                author.works = requests.get(d.get("works_api_url")).json()
+            author.openalex_called = True
+            author.save()

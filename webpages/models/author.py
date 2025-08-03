@@ -8,6 +8,10 @@ class Author(models.Model):
     homepage_content = models.TextField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     sent_email = models.BooleanField(default=False)
+    orcid_url = models.URLField(null=True, blank=True)
+    openalex_url = models.URLField(null=True, blank=True)
+    works = models.JSONField(null=True, blank=True)
+    openalex_called = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
