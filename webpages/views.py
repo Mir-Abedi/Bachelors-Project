@@ -53,6 +53,18 @@ class WebPageDetailView(ListView):
         webpage_id = self.kwargs.get('pk')
         return WebPage.objects.get(id=webpage_id)
 
+class AuthorDetailView(ListView):
+    model = Author
+    template_name = 'webpages/author.html'
+    context_object_name = 'author'
+
+    def get_queryset(self):
+        """
+        Override the default queryset to filter authors by the author ID.
+        """
+        author_id = self.kwargs.get('author_id')
+        return Author.objects.get(id=author_id)
+
 def add_webpage(request):
     """
     View function for the add webpage page of the website.
