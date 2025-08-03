@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ webpage.title }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <p><strong>URL:</strong> {{ webpage.url }}</p>
+                    <p><strong>Created:</strong> {{ webpage.created_at }}</p>
+                    <p><strong>Last Modified:</strong> {{ webpage.last_modified }}</p>
+                    <p><strong>Description:</strong></p>
+                    <p>{{ webpage.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <a href="{% url 'webpages' %}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+{% endblock %}</div>

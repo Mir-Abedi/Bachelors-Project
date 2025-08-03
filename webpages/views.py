@@ -5,6 +5,8 @@ from webpages.models import WebPage, Author, WebPagePart
 from webpages.forms import WebPageForm
 from django.shortcuts import redirect
 from django.db.models import Count, Q
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
 
 def index(request):
     """
@@ -24,7 +26,6 @@ class AuthorListView(ListView):
     context_object_name = 'authors'
     paginate_by = 10  # Show 10 authors per page
 
-
 class WebPageListView(ListView):
     model = WebPage
     template_name = 'webpages/webpages.html'
@@ -40,6 +41,17 @@ class WebPageListView(ListView):
             parts_done=Count('parts', filter=Q(parts__is_done=True))
         ).order_by('id')
 
+class WebPageDetailView(ListView):
+    model = WebPage
+    template_name = 'webpages/webpage.html'
+    context_object_name = 'webpage'
+
+    def get_queryset(self):
+        """
+        Override the default queryset to filter parts by the webpage ID.
+        """
+        webpage_id = self.kwargs.get('pk')
+        return WebPage.objects.get(id=webpage_id)
 
 def add_webpage(request):
     """
@@ -52,5 +64,18 @@ def add_webpage(request):
             return redirect('webpages')
     else:
         form = WebPageForm()
-    return render(request, 'webpages/add_webpage.html', {'form': form}) 
+    return render(request, 'webpages/add_webpage.html', {'form': form})
 
+def update_author_email(request, author_id):
+    author = get_object_or_404(Author, id=author_id)
+    
+    if request.method == 'POST':
+        new_email = request.POST.get('email')
+        if new_email:
+            author.email = new_email
+            author.save()
+            messages.success(request, "Email updated successfully!")
+        else:
+            messages.error(request, "Please provide a valid email address.")
+    
+    return redirect('author_detail', author_id=author_id)

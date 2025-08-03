@@ -1,5 +1,5 @@
 from django.urls import path
-from webpages import views
+from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -7,4 +7,6 @@ urlpatterns = [
     path('authors/', views.AuthorListView.as_view(), name='authors'),
     path('webpages/', views.WebPageListView.as_view(), name='webpages'),
     path('add_webpage/', views.add_webpage, name='add_webpage'),
+    path('webpage/<int:pk>/', views.WebPageDetailView.as_view(), name='webpage_detail'),
+    path('author/<int:author_id>/update-email/', views.update_author_email, name='update_author_email'),
 ]
