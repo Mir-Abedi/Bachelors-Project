@@ -13,7 +13,7 @@
                     <div class="author-info">
                         <h3>{{ author.name }}</h3>
                         <p><strong>Email:</strong> {{ author.email }}</p>
-                        <p><strong>Webpage:</strong> <a href="/webpage/{{ author.webpage.id }}/">{{ author.webpage.url }}</a></p>
+                        <p><strong>Webpage:</strong> <a href="/webpage/{{ author.page.id }}/">{{ author.page.url }}</a></p>
                         {% if author.orcid_url %}
                         <p><strong>Orc ID:</strong> <a href="{{ author.orcid_url }}">ORC ID URL</a></p>
                         {% endif %}
