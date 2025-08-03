@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <a href="{{ webpage.url }}" target="_blank">{{ webpage.url }}</a>
+                        <a href="/webpage/{{webpage.id}}" target="_blank">{{ webpage.url }}</a>
                     </h5>
                     <p class="card-text">
                         <strong>Crawled at:</strong> {{ webpage.crawled_at|default:"Not crawled yet" }}<br>
