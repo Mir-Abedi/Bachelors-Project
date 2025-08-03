@@ -13,7 +13,7 @@
                         {{ webpage.url }}
                     </h5>
                     <p class="card-text">
-                        <strong><a href="/webpage/{{ webpage.id }}">Webpage Details</a></strong>
+                        <strong><a href="/webpage/{{ webpage.id }}">Webpage Details</a></strong><br>
                         <strong>Crawled at:</strong> {{ webpage.crawled_at|default:"Not crawled yet" }}<br>
                         <strong>Authors:</strong> {{ webpage.authors.count }}<br>
                         <strong>Completion:</strong> {{ webpage.parts_done }} / {{ webpage.parts_count }}<br>
