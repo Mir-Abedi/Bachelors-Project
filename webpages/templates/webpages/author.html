@@ -13,11 +13,16 @@
                     <div class="author-info">
                         <h3>{{ author.name }}</h3>
                         <p><strong>Email:</strong> {{ author.email }}</p>
-                        <p><strong>Webpage:</strong> <a href="/webpage/{{ author.webpage.id }}">author.webpage.url</a></p>
-                        <p><strong>Orc ID:</strong> <a href="/webpage/{{ author.orcid_url }}">ORC ID URL</a></p>
-                        <p><strong>OpenAlex:</strong> <a href="/webpage/{{ author.openalex_url }}">OpenAlex URL</a></p>
+                        <p><strong>Webpage:</strong> <a href="/webpage/{{ author.webpage.id }}/">{{ author.webpage.url }}</a></p>
+                        {% if author.orcid_url %}
+                        <p><strong>Orc ID:</strong> <a href="{{ author.orcid_url }}">ORC ID URL</a></p>
+                        {% endif %}
+                        {% if author.openalex_url %}
+                        <p><strong>OpenAlex:</strong> <a href="{{ author.openalex_url }}">OpenAlex URL</a></p>
+                        {% endif %}
+                        {% if author.orcid_url %}
                         <p><strong>works:</strong> webpage.works</p>
-
+                        {% endif %}
                     </div>
                     
                     <div class="mt-4">

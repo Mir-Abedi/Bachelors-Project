@@ -9,9 +9,11 @@
         <div class="col-md-4 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ author.name }}</h5>
+                    <h5 class="card-title"><a href="/author/{{ author.id }}/">{{ author.name }}</a></h5>
                     <p class="card-text">
+                        {% if author.interests %}
                         <strong>Interests:</strong> {{ author.interests }}<br>
+                        {% endif %}
                         {% if author.homepage %}
                         <strong>Homepage:</strong> <a href="{{ author.homepage }}" target="_blank">{{ author.homepage }}</a><br>
                         {% endif %}
