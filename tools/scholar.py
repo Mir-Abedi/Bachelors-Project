@@ -38,6 +38,6 @@ def get_author_dict(author_name: str):
 
 if __name__ == "__main__":
     # Example usage
-    author_name = "Mahdi Jafari Siavoshani"
+    author_name = "Keivan Rezaei"
     print(get_home_page(author_name))
     print(get_author_interests(author_name))
