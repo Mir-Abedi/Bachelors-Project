@@ -1,15 +1,15 @@
 import pyrogram
 import os
 from celery import shared_task
-# from utils import config
-# from webpages.models import Author
+from utils import config
+from webpages.models import Author
 
 TELEGRAM_GROUP_ID = int(os.getenv("TELEGRAM_GROUP_ID")) if os.getenv("TELEGRAM_GROUP_ID") else None
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_API_ID = os.getenv("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH")
-# OBJECTS_PER_PAGE = config("OBJECTS_PER_PAGE", default=6, cast=int)
-# BASE_URL = config("BASE_URL", default="http://188.121.123.102:8000/")
+OBJECTS_PER_PAGE = config("OBJECTS_PER_PAGE", default=6, cast=int)
+BASE_URL = config("BASE_URL", default="http://188.121.123.102:8000/")
 
 app = pyrogram.Client("my_bot", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API_HASH, api_id=TELEGRAM_API_ID)
 
@@ -134,5 +134,4 @@ def send_telegram_notification(message: str, keyboard=None):
     with app:
         app.send_message(chat_id=TELEGRAM_GROUP_ID, text=message, reply_markup=keyboard)
 
-# run_telegram_bot.delay()
-send_telegram_notification("Telegram bot is running and ready to send notifications.")
+run_telegram_bot.delay()
