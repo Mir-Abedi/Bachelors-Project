@@ -54,6 +54,7 @@ def handle_callback_query(client, callback_query):
         if callback_handler:
             callback_handler(client, callback_query, command)
     except Exception as e:
+        logging.error(f"Error handling callback query: {e}")
         callback_query.answer("An error occurred.")
 
 def handle_authors_callback(client, callback_query, command):
