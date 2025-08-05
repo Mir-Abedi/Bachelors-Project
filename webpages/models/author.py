@@ -15,6 +15,8 @@ class Author(models.Model):
     openalex_retries = models.IntegerField(default=0)
     suggested_email = models.TextField(null=True, blank=True, max_length=5000)
     suggested_email_subject = models.CharField(max_length=255, null=True, blank=True)
+    notified_found = models.BooleanField(default=False)
+    notified_email = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

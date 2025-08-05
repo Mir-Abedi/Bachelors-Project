@@ -244,3 +244,36 @@ def fill_open_alex_data():
                 if author.openalex_retries >= 5:
                     author.openalex_called = True
                 author.save()
+
+@shared_task(time_limit=3600*3)
+def notify_new_authors():
+    with redis_lock("notifying_new_authors", ttl=3600*4):
+        new_authors = Author.objects.filter(notified_found=False, interests__isnull=False)
+        base_url = config("BASE_URL", default="http://localhost:8000/")
+        if new_authors.count() == 1:
+            message = f"New author found: [{new_authors.first().name}]({base_url}/author/{new_authors.first().id}), set their email to send them an invitation."
+        if new_authors.count() == 2:
+            message = f"New authors found: [{new_authors.first().name}]({base_url}/author/{new_authors.first().id}) and [{new_authors.last().name}]({base_url}/author/{new_authors.last().id}), set their emails to send them invitations."
+        if new_authors.count() > 2:
+            message = f"{new_authors.count()} new authors were found. [Set their emails]({base_url}/authors) to send them invitations."
+        else:
+            return
+        new_authors.update(notified_found=True)
+        telegram_sender.send_telegram_notification(message=message)
+
+@shared_task(time_limit=3600*3)
+def notify_sending_email():
+    with redis_lock("notifying_sending_email", ttl=3600*4):
+        new_authors = Author.objects.filter(notified_email=False, suggested_email__isnull=False)
+        base_url = config("BASE_URL", default="http://localhost:8000/")
+        if new_authors.count() == 1:
+            message = f"Suggested email for author [{new_authors.first().name}]({base_url}/author/{new_authors.first().id}) is ready, send them their [email]({new_authors.first().name}]({base_url}/author/{new_authors.first().id}/send_email/)."
+        if new_authors.count() == 2:
+            message = f"Suggested email for authors [{new_authors.first().name}]({base_url}/author/{new_authors.first().id}) and [{new_authors.last().name}]({base_url}/author/{new_authors.last().id}) is ready, send them their [emails]({base_url}/authors)."
+        if new_authors.count() > 2:
+            message = f"Suggested emails for {new_authors.count()} authors are ready. [Send their emails]({base_url}/authors)."
+        else:
+            return
+        new_authors.update(notified_email=True)
+        telegram_sender.send_telegram_notification(message=message)
+

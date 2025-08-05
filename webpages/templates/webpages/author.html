@@ -20,8 +20,12 @@
                         {% if author.openalex_url %}
                         <p><strong>OpenAlex:</strong> <a href="{{ author.openalex_url }}">OpenAlex URL</a></p>
                         {% endif %}
-                        {% if author.works %}
-                        <p><strong>works:</strong> {{ author.works }}</p>
+                        {% if author.works_list %}
+                        <p><strong>works:</strong></p> <br>
+
+                        {% for work in author.works_list %}
+                            <p>{{ work }}</p><br>
+                        {% endfor %}
                         {% endif %}
                     </div>
                     

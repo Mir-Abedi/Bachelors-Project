@@ -65,7 +65,10 @@ class AuthorDetailView(ListView):
         Override the default queryset to filter authors by the author ID.
         """
         author_id = self.kwargs.get('author_id')
-        return Author.objects.get(id=author_id)
+        author = Author.objects.get(id=author_id)
+        works = [i["title"] for i in author.works["results"]] if author.works else []
+        author.works_list = works
+        return author
 
 def add_webpage(request):
     """

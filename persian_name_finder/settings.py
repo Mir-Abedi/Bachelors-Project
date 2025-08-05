@@ -151,4 +151,12 @@ CELERY_BEAT_SCHEDULE = {
         "task": "webpages.tasks.fill_open_alex_data",
         "schedule": 30.0,
     },
+    "notify-new-authors": {
+        "task": "webpages.tasks.notify_new_authors",
+        "schedule": 60.0 * 60,  # Every hour
+    },
+    "notify-new-emails": {
+        "task": "webpages.tasks.notify_sending_email",
+        "schedule": 60.0 * 60,  # Every hour
+    },
 }
