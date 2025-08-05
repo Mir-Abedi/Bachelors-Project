@@ -42,6 +42,7 @@ def handle_callback_query(client, callback_query):
         callback_query.answer()
         return
     context, command = callback_query.data.split("&")
+    print(f"{context=}, {command=}")
     context_handler_map = {
         "authors": handle_authors_callback,
         "emails": handle_emails_callback,
@@ -69,12 +70,14 @@ def make_keyboard_and_message_for_authors(page_number):
         list_buttons = []
         current_buttons = []
         for author in authors[page_number * OBJECTS_PER_PAGE:(page_number + 1) * OBJECTS_PER_PAGE]:
-            current_buttons.append(pyrogram.types.InlineKeyboardButton(author.name, callback_data=f"{author.id}_{page_number}"))
+            print(f"Adding author: {author.name=} with id: {author.id=} to page {page_number=}")
+            current_buttons.append(pyrogram.types.InlineKeyboardButton(author.name, callback_data=f"authors&{author.id}_{page_number}"))
             if len(current_buttons) == 2:
                 list_buttons.append(current_buttons)
-                current_buttons.clear()
+                current_buttons = []
         if current_buttons:
             current_buttons.append(pyrogram.types.InlineKeyboardButton("", callback_data=f""))
+            list_buttons.append(current_buttons)
         if page_number == 0:
             list_buttons.append([pyrogram.types.InlineKeyboardButton("Next", callback_data=f"authors&next_{page_number + 1}")])
         elif page_number < max_pages:
