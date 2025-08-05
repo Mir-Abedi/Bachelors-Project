@@ -35,8 +35,10 @@ def handle_authors(client, message):
 
 @app.on_callback_query
 def handle_callback_query(client, callback_query):
+    print(f"Received callback query: {callback_query.data}")
     if callback_query.message.chat.id != TELEGRAM_GROUP_ID or callback_query.message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
         callback_query.answer("Command not allowed here")
+        return
     data = callback_query.data
     if not data:
         callback_query.answer()
