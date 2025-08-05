@@ -108,4 +108,7 @@ class SendEmailView(ListView):
         """
         author_id = self.kwargs.get('author_id')
         author = Author.objects.get(id=author_id)
+        if not author.email:
+            messages.error(self.request, "Author does not have an email address.")
+            return redirect('author_detail', author_id=author_id)
         return author

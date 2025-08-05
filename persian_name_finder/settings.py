@@ -145,7 +145,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "run-crawl-every-30-seconds": {
         "task": "webpages.tasks.crawl_web_pages",
-        "schedule": 30.0,
+        "schedule": 60.0 * 2,
     },
     "run-fetch-openalex-every-30-seconds": {
         "task": "webpages.tasks.fill_open_alex_data",
@@ -159,4 +159,8 @@ CELERY_BEAT_SCHEDULE = {
         "task": "webpages.tasks.notify_sending_email",
         "schedule": 60.0 * 60,  # Every hour
     },
+    "suggest-email-to-author": {
+        "task": "webpages.tasks.suggest_email_to_authors",
+        "schedule": 60 * 5,  # Every 5 minutes
+    }
 }

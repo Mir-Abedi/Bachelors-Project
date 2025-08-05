@@ -18,6 +18,7 @@ from tools.scholar import get_home_page as get_home_page_tool_scholar
 from tools.scholar import get_author_interests as get_author_interests_scholar
 from tools.open_alex import get_author_interests as get_author_interests_open_alex
 from tools.open_alex import get_author_dict
+from utils.suggest_email_prompt import SaveEmailPrompt
 from utils.config import config
 from utils.open_alex_prompt import AnalyzePageStartingPrompt
 from webpages.models import WebPage, WebPagePart, Author
@@ -27,6 +28,7 @@ import redis
 from telegram import telegram_sender
 
 CURRENT_WEB_PAGE = None
+CURRENT_AUTHOR_EMAIL_SUGGESTION: Author = None
 
 ### Get Home Page Tool
 class GetHomePageInput(BaseModel):
@@ -192,6 +194,86 @@ def get_web_page_parts(webpage: WebPage) -> list[WebPagePart]:
 
     return parts
 
+### Save Author Tool
+class SaveSuggestedEmail(BaseModel):
+    subject: str = Field(..., description="Subject of the email to be sent")
+    body: str = Field(..., description="Body of the email to be sent")
+
+@tool(args_schema=SaveSuggestedEmail)
+def save_suggested_email(body: str, subject: str) -> str:
+    """Saves the suggested email for the author in database.
+    """
+    try:
+        CURRENT_AUTHOR_EMAIL_SUGGESTION.suggested_email = body
+        CURRENT_AUTHOR_EMAIL_SUGGESTION.suggested_email_subject = subject
+        CURRENT_AUTHOR_EMAIL_SUGGESTION.save()
+    except Exception as e:
+        return "Author not saved"
+
+@shared_task(time_limit=3600*3)
+def suggest_email_to_authors():
+    with redis_lock("suggesting_email_to_authors", ttl=3600*4):
+        global CURRENT_AUTHOR_EMAIL_SUGGESTION
+        author = Author.objects.filter(suggested_email__isnull=True, email__isnull=False).first()
+        if author:
+            print(f"Suggesting email for {author.name}")
+            CURRENT_AUTHOR_EMAIL_SUGGESTION = author
+            save_prompt = SaveEmailPrompt(author=author)
+
+            for prompt in save_prompt:
+                tools = [save_suggested_email]
+                tool_node = ToolNode(tools)
+
+                if config("USE_OLLAMA"):
+                    model_with_tools = ChatOllama(model=config("OLLAMA_MODEL")).bind_tools(tools)
+                elif config("USE_GEMINI"):
+                    model_with_tools = ChatGoogleGenerativeAI(
+                        model=config("GEMINI_MODEL"),
+                        temperature=0.1
+                    ).bind_tools(tools)
+                else:
+                    # use api calls
+                    model_with_tools = ChatOpenAI(
+                        model=config("OPENAI_API_MODEL"),
+                        openai_api_base=config("OPENAI_API_ENDPOINT"),
+                        openai_api_key=os.environ["API_KEY"],
+                        temperature=0.7,
+                        max_tokens=512,
+                    ).bind_tools(tools)
+
+                def should_continue(state: MessagesState):
+                    messages = state["messages"]
+                    last_message = messages[-1]
+                    # Check if there are any tool calls in the last message
+                    if last_message.tool_calls and len(last_message.tool_calls) > 0:
+                        # Process all tool calls
+                        return "tools"
+                    return END
+
+
+                def call_model(state: MessagesState):
+                    messages = state["messages"]
+                    response = model_with_tools.invoke(messages)
+                    return {"messages": [response]}
+
+
+                workflow = StateGraph(MessagesState)
+
+                # Define the two nodes we will cycle between
+                workflow.add_node("agent", call_model)
+                workflow.add_node("tools", tool_node)
+
+                workflow.add_edge(START, "agent")
+                workflow.add_conditional_edges("agent", should_continue, ["tools", END])
+                workflow.add_edge("tools", "agent")
+
+                app = workflow.compile()
+
+                for chunk in app.stream(
+                    {"messages": prompt}, stream_mode="values"
+                ):
+                    for message in chunk["messages"]:
+                        message.pretty_print()
 
 @shared_task(time_limit=3600*3)
 def create_web_page_parts():
