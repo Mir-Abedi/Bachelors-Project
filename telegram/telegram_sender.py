@@ -20,14 +20,14 @@ def handle_notification(client, message):
 
 @app.on_message(pyrogram.filters.command("help"))
 def handle_help(client, message):
-    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type != "group":
+    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in ["group", "supergroup"]:
         message.reply_text("This is a Telegram bot to send notifications for [LLM agent website](http://188.121.123.102:8000/).")
     else:
         message.reply_text("This is a Telegram bot to send notifications for [LLM agent website](http://188.121.123.102:8000/). \n/authors to see the authors of this project.\n/emails to see professors ready to send email.")
 
 @app.on_message(pyrogram.filters.command("authors"))
 def handle_authors(client, message):
-    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type != "group":
+    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in ["group", "supergroup"]:
         message.reply_text("Command not allowed here")
     else:
         keyboard, message_text = make_keyboard_and_message_for_authors(0)
