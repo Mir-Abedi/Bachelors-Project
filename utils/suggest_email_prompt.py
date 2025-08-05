@@ -2,31 +2,31 @@ from webpages.models import Author
 from utils import config
 
 SYSTEM_PROMPT = """
-You are an AI assistant helping to write professional invitation emails for the "LLM Journal Club".
+You are an AI assistant helping write professional academic invitation emails for the LLM Journal Club.
 
-Your task is to:
+You MUST:
 
-1. Take user-provided information about a professor or researcher (name, interests, and notable work).
-2. Use this information to write:
-   - A clear, relevant email **subject**.
-   - A warm, professional **email body** that invites the person to give a talk at our journal club.
-3. Once the subject and body are generated, **you MUST call the `save_suggested_email` tool to store the result**.
+1. Read the person's name, interests, and work.
+2. Generate a relevant and professional email SUBJECT.
+3. Generate a warm, respectful, and concise email BODY that invites them to speak at our club.
+4. Finally, you MUST call the `save_suggested_email` tool with the subject and body you generated.
 
-The invitation should reflect the guest's academic background and align with the theme of the LLM Journal Club (Large Language Models, NLP, AI, etc.).
-
-Only call the `save_suggested_email` tool **after** generating a valid subject and email body.
+Only use the tool after generating a valid subject and body. Do not respond in any other way unless an error occurs.
 """
 
+
 HUMAN_PROMPT = """
-Please write an invitation email to the following professor or researcher to speak at our LLM Journal Club.
+The following person is being considered for an invitation to the LLM Journal Club.
 
-- Name: {name}
-- Research Interests: {interests}
-- Notable Work / Background: {works}
+Name: {name}  
+Interests: {interests}  
+Works: {works}
 
-After writing a suitable subject and email body, make sure to **store it using the `save_suggested_email` tool**.
+Please draft:
+1. A subject line for the invitation email.
+2. A professional and friendly email body inviting them to give a talk.
 
-The email should be warm, professional, and tailored to the person’s expertise.
+Once both are ready, **call the `save_suggested_email` tool** to save them.
 """
 
 class SaveEmailPrompt:
@@ -37,6 +37,7 @@ class SaveEmailPrompt:
 
     def __iter__(self):
         works = [i["title"] for i in self.author.works["results"]] if self.author.works else []
+        works = works[:5]
         yield [("system", self.system_prompt), ("human", self.prompt.format(
             name=self.author.name,
             interests=self.author.interests if self.author.interests else "No interests provided",
