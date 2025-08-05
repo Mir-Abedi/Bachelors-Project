@@ -39,8 +39,6 @@ def handle_authors(client, message):
 @app.on_callback_query(pyrogram.filters.regex(r"^authors&") | pyrogram.filters.regex(r"^emails&"))
 def handle_callback_query(client, callback_query):
     try:
-        print("Recieved callback")
-        print(f"Received callback query: {callback_query.data}")
         if callback_query.message.chat.id != TELEGRAM_GROUP_ID or callback_query.message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
             callback_query.answer("Command not allowed here")
             return
@@ -86,11 +84,11 @@ def make_keyboard_and_message_for_authors(page_number):
                 list_buttons.append(current_buttons)
                 current_buttons = []
         if current_buttons:
-            current_buttons.append(pyrogram.types.InlineKeyboardButton("", callback_data=f""))
+            current_buttons.append(pyrogram.types.InlineKeyboardButton("_", callback_data=f""))
             list_buttons.append(current_buttons)
         if page_number == 0:
             list_buttons.append([pyrogram.types.InlineKeyboardButton("Next", callback_data=f"authors&next_{page_number + 1}")])
-        elif page_number < max_pages:
+        elif page_number < max_pages - 1:
             list_buttons.append([
                 pyrogram.types.InlineKeyboardButton("Previous", callback_data=f"authors&previous_{page_number - 1}"),
                 pyrogram.types.InlineKeyboardButton("Next", callback_data=f"authors&next_{page_number + 1}")
@@ -124,7 +122,7 @@ def handle_emails_callback(client, callback_query, command):
 
 @app.on_message(pyrogram.filters.command("emails"))
 def handle_emails(client, message):
-    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type != "group":
+    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
         message.reply_text("Command not allowed here")
     else:
         # todo send message with buttons
