@@ -11,6 +11,15 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from kombu import Queue
+
+CELERY_TASK_QUEUES = (
+    Queue('default'),
+    Queue('telegram_queue'),
+)
+
+# Set unspecified queues to default
+CELERY_TASK_DEFAULT_QUEUE = 'default'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

@@ -12,6 +12,7 @@ class Author(models.Model):
     openalex_url = models.URLField(null=True, blank=True)
     works = models.JSONField(null=True, blank=True)
     openalex_called = models.BooleanField(default=False)
+    openalex_retries = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name

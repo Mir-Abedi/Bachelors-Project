@@ -227,10 +227,17 @@ def fill_open_alex_data():
     with redis_lock("filling_open_alex_data", ttl=3600*4):
         author = Author.objects.filter(openalex_called=False).first()
         if author:
-            d = get_author_dict(author.name)
-            author.orcid_url = d.get("ids", {}).get("orcid", "")
-            author.openalex_url = d.get("ids", {}).get("openalex", "")
-            if d.get("works_api_url"):  
-                author.works = requests.get(d.get("works_api_url")).json()
-            author.openalex_called = True
-            author.save()
+            try:
+                d = get_author_dict(author.name)
+                author.orcid_url = d.get("ids", {}).get("orcid", "")
+                author.openalex_url = d.get("ids", {}).get("openalex", "")
+                if d.get("works_api_url"):  
+                    author.works = requests.get(d.get("works_api_url")).json()
+                author.openalex_called = True
+                author.save()
+            except Exception as e:
+                print(f"Error filling OpenAlex data for {author.name}: {e}")
+                author.openalex_retries += 1
+                if author.openalex_retries >= 5:
+                    author.openalex_called = True
+                author.save()
