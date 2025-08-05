@@ -1,7 +1,7 @@
 from django.db import models
 
 class WebPage(models.Model):
-    url = models.URLField(unique=True)
+    url = models.URLField()
     raw_html = models.TextField(default="", blank=True)
     crawled_at = models.DateTimeField(null=True, blank=True)
 
