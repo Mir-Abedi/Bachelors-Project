@@ -31,7 +31,7 @@ class AnalyzePageStartingPrompt:
         self.max_parts = config("MAX_WEB_PAGE_PARTS", cast=int, default=10)
 
     def __iter__(self):
-        for web_page_part in self.webpage.parts.filter(is_done=False).order_by("part_number").limit(self.max_parts):
+        for web_page_part in self.webpage.parts.filter(is_done=False).order_by("part_number")[:self.max_parts]:
             yield [("system", self.system_prompt), ("human", self.prompt.format(content=web_page_part.raw_html))]
             web_page_part.is_done = True
             web_page_part.save()
