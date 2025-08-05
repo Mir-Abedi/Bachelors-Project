@@ -236,6 +236,7 @@ def fill_open_alex_data():
                 if d.get("works_api_url"):  
                     author.works = requests.get(d.get("works_api_url")).json()
                 author.openalex_called = True
+                author.interests = get_author_interests_open_alex(author.name)
                 author.save()
             except Exception as e:
                 print(f"Error filling OpenAlex data for {author.name}: {e}")

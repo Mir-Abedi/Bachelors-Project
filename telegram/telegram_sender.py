@@ -84,14 +84,14 @@ def make_keyboard_and_message_for_authors(page_number):
             current_buttons.append(pyrogram.types.InlineKeyboardButton("-", callback_data=f"-"))
             list_buttons.append(current_buttons)
         if page_number == 0:
-            list_buttons.append([pyrogram.types.InlineKeyboardButton("Next", callback_data=f"authors&next_{page_number + 1}")])
+            list_buttons.append([pyrogram.types.InlineKeyboardButton("➡️", callback_data=f"authors&next_{page_number + 1}")])
         elif page_number < max_pages - 1:
             list_buttons.append([
-                pyrogram.types.InlineKeyboardButton("Previous", callback_data=f"authors&previous_{page_number - 1}"),
-                pyrogram.types.InlineKeyboardButton("Next", callback_data=f"authors&next_{page_number + 1}")
+                pyrogram.types.InlineKeyboardButton("⬅️", callback_data=f"authors&previous_{page_number - 1}"),
+                pyrogram.types.InlineKeyboardButton("➡️", callback_data=f"authors&next_{page_number + 1}")
             ])
         else:
-            list_buttons.append([pyrogram.types.InlineKeyboardButton("Previous", callback_data=f"authors&previous_{page_number - 1}")])
+            list_buttons.append([pyrogram.types.InlineKeyboardButton("⬅️", callback_data=f"authors&previous_{page_number - 1}")])
         keyboard = pyrogram.types.InlineKeyboardMarkup(list_buttons)
         return keyboard, message
     else:
