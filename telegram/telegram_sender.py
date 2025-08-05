@@ -80,7 +80,7 @@ def make_keyboard_and_message_for_authors(page_number):
                 list_buttons.append(current_buttons)
                 current_buttons = []
         if current_buttons:
-            current_buttons.append(pyrogram.types.InlineKeyboardButton("_", callback_data=f""))
+            current_buttons.append(pyrogram.types.InlineKeyboardButton("-", callback_data=f"-"))
             list_buttons.append(current_buttons)
         if page_number == 0:
             list_buttons.append([pyrogram.types.InlineKeyboardButton("Next", callback_data=f"authors&next_{page_number + 1}")])
