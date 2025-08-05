@@ -1,17 +1,17 @@
 import pyrogram
 import os
 from celery import shared_task
-from utils import config
-from webpages.models import Author
+# from utils import config
+# from webpages.models import Author
 
 TELEGRAM_GROUP_ID = int(os.getenv("TELEGRAM_GROUP_ID")) if os.getenv("TELEGRAM_GROUP_ID") else None
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_API_ID = os.getenv("TELEGRAM_API_ID")
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH")
-OBJECTS_PER_PAGE = config("OBJECTS_PER_PAGE", default=6, cast=int)
-BASE_URL = config("BASE_URL", default="http://188.121.123.102:8000/")
+# OBJECTS_PER_PAGE = config("OBJECTS_PER_PAGE", default=6, cast=int)
+# BASE_URL = config("BASE_URL", default="http://188.121.123.102:8000/")
 
-app = pyrogram.Client("my_bot", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API_HASH, api_id=TELEGRAM_API_ID)
+app = pyrogram.Client("gooz", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API_HASH, api_id=TELEGRAM_API_ID)
 
 @app.on_message(pyrogram.filters.command("start"))
 def handle_notification(client, message):
@@ -120,7 +120,7 @@ def ensure_telegram_config():
     if not TELEGRAM_API_HASH or not TELEGRAM_BOT_TOKEN or not TELEGRAM_API_ID:
         raise ValueError("Telegram group ID and bot token must be set in environment variables.")
 
-@shared_task(queue='telegram_queue')
+# @shared_task(queue='telegram_queue')
 def run_telegram_bot():
     ensure_telegram_config()
     print("Starting Telegram bot...")
@@ -134,4 +134,6 @@ def send_telegram_notification(message: str, keyboard=None):
     with app:
         app.send_message(chat_id=TELEGRAM_GROUP_ID, text=message, reply_markup=keyboard)
 
-run_telegram_bot.delay()
+# run_telegram_bot.delay()
+# send_telegram_notification("aaa")
+run_telegram_bot()
