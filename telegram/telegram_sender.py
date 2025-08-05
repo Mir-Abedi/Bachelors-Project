@@ -220,7 +220,7 @@ def send_telegram_notification(message: str, keyboard=None):
     ensure_telegram_config()
     if TELEGRAM_GROUP_ID is None:
         raise ValueError("Telegram group ID is not set.")
-    temp_app = pyrogram.Client("temp_bot", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API_HASH, api_id=TELEGRAM_API_ID)
+    temp_app = pyrogram.Client("bot", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API_HASH, api_id=TELEGRAM_API_ID)
     with temp_app:
         try:
             # Get the group peer first to ensure it's in the session
