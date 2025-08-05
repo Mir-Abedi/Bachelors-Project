@@ -258,8 +258,8 @@ def notify_new_authors():
             message = f"{new_authors.count()} new authors were found. [Set their emails]({base_url}/authors) to send them invitations."
         else:
             return
+        telegram_sender.send_telegram_notification(message=message)
         new_authors.update(notified_found=True)
-        telegram_sender.send_telegram_notification.delay(message=message)
 
 @shared_task(time_limit=3600*3)
 def notify_sending_email():
@@ -274,6 +274,6 @@ def notify_sending_email():
             message = f"Suggested emails for {new_authors.count()} authors are ready. [Send their emails]({base_url}/authors)."
         else:
             return
+        telegram_sender.send_telegram_notification(message=message)
         new_authors.update(notified_email=True)
-        telegram_sender.send_telegram_notification.delay(message=message)
 

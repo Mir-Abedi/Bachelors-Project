@@ -215,7 +215,6 @@ def run_telegram_bot():
     print("Starting Telegram bot...")
     app.run()
 
-@shared_task
 def send_telegram_notification(message: str, keyboard=None):
     ensure_telegram_config()
     if TELEGRAM_GROUP_ID is None:
