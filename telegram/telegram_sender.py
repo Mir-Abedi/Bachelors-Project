@@ -18,7 +18,6 @@ app = pyrogram.Client("bot", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API
 
 @app.on_message(pyrogram.filters.command("start"))
 def handle_notification(client, message):
-    print(message)
     message.reply_text("This is a Telegram bot to send notifications for [LLM agent website](http://188.121.123.102:8000/).")
 
 @app.on_message(pyrogram.filters.command("help"))
@@ -47,7 +46,6 @@ def handle_callback_query(client, callback_query):
             callback_query.answer()
             return
         context, command = callback_query.data.split("&")
-        print(f"{context=}, {command=}")
         context_handler_map = {
             "authors": handle_authors_callback,
             "emails": handle_emails_callback,
@@ -56,7 +54,6 @@ def handle_callback_query(client, callback_query):
         if callback_handler:
             callback_handler(client, callback_query, command)
     except Exception as e:
-        print(f"Error in callback query: {e}")
         callback_query.answer("An error occurred.")
 
 def handle_authors_callback(client, callback_query, command):
@@ -78,7 +75,6 @@ def make_keyboard_and_message_for_authors(page_number):
         list_buttons = []
         current_buttons = []
         for author in authors[page_number * OBJECTS_PER_PAGE:(page_number + 1) * OBJECTS_PER_PAGE]:
-            print(f"Adding author: {author.name=} with id: {author.id=} to page {page_number=}")
             current_buttons.append(pyrogram.types.InlineKeyboardButton(author.name, callback_data=f"authors&{author.id}_{page_number}"))
             if len(current_buttons) == 2:
                 list_buttons.append(current_buttons)
