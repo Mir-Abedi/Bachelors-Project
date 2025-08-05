@@ -72,7 +72,7 @@ def make_keyboard_and_message_for_authors(page_number):
     authors = Author.objects.filter(openalex_called=True).order_by('name')
     max_pages = (authors.count() + OBJECTS_PER_PAGE - 1) // OBJECTS_PER_PAGE
     if authors.exists():
-        message = """Below you can choose authors whose information has been collected by the LLM agent. Choose any author to see more information about them."""
+        message = """Below you can choose authors whose information has been collected by the LLM agent. \nChoose any author to see more information about them."""
         list_buttons = []
         current_buttons = []
         for author in authors[page_number * OBJECTS_PER_PAGE:(page_number + 1) * OBJECTS_PER_PAGE]:
@@ -126,7 +126,7 @@ def handle_emails_callback(client, callback_query, command):
     elif command.startswith("send"):
         # todo: send email to author
         author_id = int(command.split("_")[1])
-        keyboard, message = make_keyboard_and_message_for_send-email(author_id)
+        keyboard, message = make_keyboard_and_message_for_send_email(author_id)
         callback_query.edit_message_text(text=message, reply_markup=keyboard)
     else:
         author_id, current_page = map(int, command.split("_"))
@@ -139,7 +139,7 @@ def make_keyboard_and_message_for_emails(page_number):
     authors = Author.objects.filter(email__isnull=False, sent_email=False).order_by('name')
     max_pages = (authors.count() + OBJECTS_PER_PAGE - 1) // OBJECTS_PER_PAGE
     if authors.exists():
-        message = """Below you can choose authors whose information has been collected by the LLM agent. Choose any author to see more information about them."""
+        message = """Below you can choose authors whose information has been collected by the LLM agent and an email suggestion has been made. \nChoose any author to see more information about them and send them an invitation."""
         list_buttons = []
         current_buttons = []
         for author in authors[page_number * OBJECTS_PER_PAGE:(page_number + 1) * OBJECTS_PER_PAGE]:
@@ -220,7 +220,7 @@ def send_telegram_notification(message: str, keyboard=None):
     ensure_telegram_config()
     if TELEGRAM_GROUP_ID is None:
         raise ValueError("Telegram group ID is not set.")
-    temp_app = pyrogram.Client("bot", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API_HASH, api_id=TELEGRAM_API_ID)
+    temp_app = pyrogram.Client("temp_bot", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API_HASH, api_id=TELEGRAM_API_ID)
     with temp_app:
         try:
             # Get the group peer first to ensure it's in the session
