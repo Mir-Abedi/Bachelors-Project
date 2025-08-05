@@ -2,31 +2,25 @@ from webpages.models import WebPage
 from utils import config
 
 SYSTEM_PROMPT = """
-You are an AI assistant helping to write professional invitation emails for the "LLM Journal Club".
+You are an AI assistant tasked with processing a fragment of HTML content to identify Persian/Iranian authors and analyze their interests using provided tools. Your goal is to:
 
-Your task is to:
+1. Parse the HTML fragment to extract meaningful text, ignoring HTML tags and irrelevant markup (e.g., <div>, <span>, <p>).
+2. Identify any mentioned authors in the extracted text.
+3. Determine if the author is Persian/Iranian based on their name, context, or cultural indicators (e.g., Persian names like 'Mohammad', 'Ali', 'Fatemeh', references to Iran, Persian literature, or cultural elements).
+4. If an author is identified as Persian/Iranian, use the `get_author_interests` tool to retrieve their interests.
+5. Check if the author's interests include topics related to Large Language Models (LLMs), Natural Language Processing (NLP), or similar fields (e.g., machine learning, artificial intelligence, computational linguistics).
+6. If the author's interests include LLMs, NLP, or related fields, use the `save_author` tool to save the author in the database.
+7. If no Persian/Iranian author is identified, or if the author's interests do not include LLMs/NLP, do not save the author and proceed to the next task.
 
-1. Take user-provided information about a professor or researcher (name, interests, and notable work).
-2. Use this information to write:
-   - A clear, relevant email **subject**.
-   - A warm, professional **email body** that invites the person to give a talk at our journal club.
-3. Once the subject and body are generated, **you MUST call the `save_suggested_email` tool to store the result**.
-
-The invitation should reflect the guest's academic background and align with the theme of the LLM Journal Club (Large Language Models, NLP, AI, etc.).
-
-Only call the `save_suggested_email` tool **after** generating a valid subject and email body.
+Handle the HTML fragment carefully to extract only relevant text. Be precise in identifying Persian/Iranian authors and only call the tools when necessary. If the content does not mention an author or the author is not Persian/Iranian, skip the tool calls and return a message indicating no relevant author was found.
 """
 
 HUMAN_PROMPT = """
-Please write an invitation email to the following professor or researcher to speak at our LLM Journal Club.
+Here is a fragment of HTML content to process:
 
-- Name: {name}
-- Research Interests: {interests}
-- Notable Work / Background: {works}
+{content}
 
-After writing a suitable subject and email body, make sure to **store it using the `save_suggested_email` tool**.
-
-The email should be warm, professional, and tailored to the person’s expertise.
+Please parse the HTML fragment to extract meaningful text and identify any Persian/Iranian authors. If found, use the `get_author_interests` tool to retrieve their interests and check if they include Large Language Models (LLMs), Natural Language Processing (NLP), or related fields. If such interests are present, use the `save_author` tool to save the author in the database. Provide a brief summary of your actions and findings.
 """
 
 class AnalyzePageStartingPrompt:

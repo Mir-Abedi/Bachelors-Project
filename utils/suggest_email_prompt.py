@@ -2,29 +2,31 @@ from webpages.models import Author
 from utils import config
 
 SYSTEM_PROMPT = """
-You are an expert assistant specialized in drafting professional emails.
+You are an AI assistant helping to write professional invitation emails for the "LLM Journal Club".
 
-Your task is to write a clear and engaging invitation email to a professor or researcher, inviting them to speak at our academic discussion group, the "LLM Journal Club".
+Your task is to:
 
-After generating the email **subject** and **body**, you must **save the result in the database using the provided tools**.
+1. Take user-provided information about a professor or researcher (name, interests, and notable work).
+2. Use this information to write:
+   - A clear, relevant email **subject**.
+   - A warm, professional **email body** that invites the person to give a talk at our journal club.
+3. Once the subject and body are generated, **you MUST call the `save_suggested_email` tool to store the result**.
 
-Always ensure the tone is respectful, enthusiastic, and appropriate for academic correspondence.
+The invitation should reflect the guest's academic background and align with the theme of the LLM Journal Club (Large Language Models, NLP, AI, etc.).
+
+Only call the `save_suggested_email` tool **after** generating a valid subject and email body.
 """
 
 HUMAN_PROMPT = """
-Please draft an invitation email for the following professor/researcher to speak at our "LLM Journal Club".
+Please write an invitation email to the following professor or researcher to speak at our LLM Journal Club.
 
-Details:
 - Name: {name}
 - Research Interests: {interests}
-- Notable Works or Background: {works}
+- Notable Work / Background: {works}
 
-The output should include:
-1. A concise and relevant email **subject**.
-2. A warm and professional **email body** inviting them to give a talk.
-3. Ensure the email reflects their expertise and aligns with the theme of the LLM Journal Club.
+After writing a suitable subject and email body, make sure to **store it using the `save_suggested_email` tool**.
 
-Once the email is generated, please **store it using the available tools**.
+The email should be warm, professional, and tailored to the person’s expertise.
 """
 
 class SaveEmailPrompt:
