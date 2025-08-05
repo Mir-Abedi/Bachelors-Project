@@ -155,7 +155,7 @@ def get_web_page_parts(webpage: WebPage) -> list[WebPagePart]:
     part_number = 1
 
     while start < len(html):
-        end = start + config("HTML_CUTOFF_CHAR")
+        end = start + config("HTML_CUTOFF_CHAR", cast=int)
 
         if end >= len(html):
             end = len(html)
