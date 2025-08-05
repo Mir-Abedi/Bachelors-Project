@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh;">
+    {% if author.email %}
     <form method="post" style="width: 100%; max-width: 400px;">
         {% csrf_token %}
         <div style="margin-bottom: 1.5em;">
@@ -8,8 +9,8 @@
             <input type="text" id="subject" name="subject" class="form-control" style="width: 100%; padding: 0.5em; font-size: 1em; margin-top: 0.5em;" placeholder="Enter subject" required>
         </div>
         <div style="margin-bottom: 1.5em;">
-            <label for="email" style="font-weight: bold;">Body</label><br>
-            <input type="email" id="email" name="email" class="form-control" style="width: 100%; padding: 0.75em; font-size: 1.1em; margin-top: 0.5em;" 
+            <label for="body" style="font-weight: bold;">Body</label><br>
+            <input type="text" id="body" name="body" class="form-control" style="width: 100%; padding: 0.75em; font-size: 1.1em; margin-top: 0.5em;" 
                 value="{{ author.suggested_email|default:'' }}" 
                 placeholder="{% if author.suggested_email %}{{ author.suggested_email }}{% else %}no suggestion yet, please enter body{% endif %}" required>
         </div>
@@ -17,5 +18,10 @@
             <button type="submit" class="btn btn-primary" style="padding: 0.6em 2em; font-size: 1.1em;">Send</button>
         </div>
     </form>
+    {%% else %%}
+    <div style="text-align: center; font-size: 1.2em; color: red;">
+        No email address available for this author.
+    </div>
+    {%% endif %%}
 </div>
 {% endblock %}

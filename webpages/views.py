@@ -7,6 +7,9 @@ from django.shortcuts import redirect
 from django.db.models import Count, Q
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
+from django.views.generic.edit import FormView
+from tools.email_sender import send_email
+from django.conf import settings
 
 def index(request):
     """
@@ -97,18 +100,24 @@ def update_author_email(request, author_id):
     
     return redirect('author_detail', author_id=author_id)
 
-class SendEmailView(ListView):
-    model = Author
+class SendEmailView(FormView):
     template_name = 'webpages/send_email.html'
-    context_object_name = 'send_email'
+    success_url = '/'
 
-    def get_queryset(self):
-        """
-        Override the default queryset to filter authors by the author ID.
-        """
+    def get(self, request, *args, **kwargs):
         author_id = self.kwargs.get('author_id')
-        author = Author.objects.get(id=author_id)
-        if not author.email:
-            messages.error(self.request, "Author does not have an email address.")
-            return redirect('author_detail', author_id=author_id)
-        return author
+        author = get_object_or_404(Author, id=author_id)
+        return render(request, self.template_name, {'author': author})
+
+    def post(self, request, *args, **kwargs):
+        author_id = self.kwargs.get('author_id')
+        author = get_object_or_404(Author, id=author_id)
+        subject = request.POST.get('subject')
+        body = request.POST.get('body')
+        send_email.delay(
+            body,
+            subject,
+            author.email,
+        )
+        messages.success(request, "Email sent successfully!")
+        return redirect('author_detail', author_id=author_id)
