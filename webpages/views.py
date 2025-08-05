@@ -97,21 +97,15 @@ def update_author_email(request, author_id):
     
     return redirect('author_detail', author_id=author_id)
 
-def SendEmailView(request, author_id):
-    author = get_object_or_404(Author, id=author_id)
-    
-    if request.method == 'POST':
-        subject = request.POST.get('subject')
-        message = request.POST.get('message')
-        
-        if subject and message:
-            # Here you would implement the logic to send the email
-            # For now, we just simulate it
-            author.suggested_email_subject = subject
-            author.suggested_email = message
-            author.save()
-            messages.success(request, "Email sent successfully!")
-        else:
-            messages.error(request, "Please provide both subject and message.")
-    
-    return redirect('author_detail', author_id=author_id)
+class SendEmailView(ListView):
+    model = Author
+    template_name = 'webpages/send_email.html'
+    context_object_name = 'send_email'
+
+    def get_queryset(self):
+        """
+        Override the default queryset to filter authors by the author ID.
+        """
+        author_id = self.kwargs.get('author_id')
+        author = Author.objects.get(id=author_id)
+        return author
