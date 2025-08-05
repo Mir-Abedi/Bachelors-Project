@@ -55,7 +55,7 @@ def handle_callback_query(client, callback_query):
         if callback_handler:
             callback_handler(client, callback_query, command)
     except Exception as e:
-        logging.error(f"Error handling callback query: {e}")
+        print(f"Error handling callback query: {e}")
         callback_query.answer("An error occurred.")
 
 def handle_authors_callback(client, callback_query, command):
@@ -175,11 +175,18 @@ def make_keyboard_and_message_for_email(id, current_page):
         message = f"""Author: {author.name}
 Suggested Email Subject: `{author.suggested_email_subject}`
 Suggested Email: `{author.suggested_email}`"""
-    list_buttons = [
-        [pyrogram.types.InlineKeyboardButton("Send Email", callback_data=f"emails&doublecheck_{author.id}_{current_page}"),
-        pyrogram.types.InlineKeyboardButton("Back to emails list", callback_data=f"emails&next_{current_page}")],
-        [pyrogram.types.InlineKeyboardButton("Send Email Page", url=BASE_URL + f"author/{author.id}/send-email/")]
-    ]
+    if author.suggested_email:
+        list_buttons = [
+            [pyrogram.types.InlineKeyboardButton("Send Email", callback_data=f"emails&doublecheck_{author.id}_{current_page}"),
+             pyrogram.types.InlineKeyboardButton("Back to emails list", callback_data=f"emails&next_{current_page}")]
+        ]
+    else:
+        list_buttons = [
+            [pyrogram.types.InlineKeyboardButton("Back to emails list", callback_data=f"emails&next_{current_page}")]
+        ]
+    list_buttons.append([
+        pyrogram.types.InlineKeyboardButton("Send Email Page", url=BASE_URL + f"author/{author.id}/send-email/")
+    ])
     keyboard = pyrogram.types.InlineKeyboardMarkup(list_buttons)
     return keyboard, message
 
