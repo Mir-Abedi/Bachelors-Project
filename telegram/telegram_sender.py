@@ -15,6 +15,7 @@ app = pyrogram.Client("gooz", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_AP
 
 @app.on_message(pyrogram.filters.command("start"))
 def handle_notification(client, message):
+    print(message)
     message.reply_text("This is a Telegram bot to send notifications for [LLM agent website](http://188.121.123.102:8000/).")
 
 @app.on_message(pyrogram.filters.command("help"))
@@ -135,5 +136,5 @@ def send_telegram_notification(message: str, keyboard=None):
         app.send_message(chat_id=TELEGRAM_GROUP_ID, text=message, reply_markup=keyboard)
 
 # run_telegram_bot.delay()
-# send_telegram_notification("aaa")
+send_telegram_notification("aaa")
 run_telegram_bot()
