@@ -24,6 +24,8 @@ from webpages.models import WebPage, WebPagePart, Author
 from pydantic import BaseModel, Field
 import redis
 
+from telegram import telegram_sender
+
 CURRENT_WEB_PAGE = None
 
 ### Get Home Page Tool
