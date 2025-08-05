@@ -3,6 +3,9 @@ import os
 from celery import shared_task
 from utils import config
 from webpages.models import Author
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 TELEGRAM_GROUP_ID = int(os.getenv("TELEGRAM_GROUP_ID")) if os.getenv("TELEGRAM_GROUP_ID") else None
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -35,23 +38,27 @@ def handle_authors(client, message):
 
 @app.on_callback_query
 def handle_callback_query(client, callback_query):
-    print(f"Received callback query: {callback_query.data}")
-    if callback_query.message.chat.id != TELEGRAM_GROUP_ID or callback_query.message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
-        callback_query.answer("Command not allowed here")
-        return
-    data = callback_query.data
-    if not data:
-        callback_query.answer()
-        return
-    context, command = callback_query.data.split("&")
-    print(f"{context=}, {command=}")
-    context_handler_map = {
-        "authors": handle_authors_callback,
-        "emails": handle_emails_callback,
-    }
-    callback_handler = context_handler_map.get(context)
-    if callback_handler:
-        callback_handler(client, callback_query, command)
+    try:
+        print(f"Received callback query: {callback_query.data}")
+        if callback_query.message.chat.id != TELEGRAM_GROUP_ID or callback_query.message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
+            callback_query.answer("Command not allowed here")
+            return
+        data = callback_query.data
+        if not data:
+            callback_query.answer()
+            return
+        context, command = callback_query.data.split("&")
+        print(f"{context=}, {command=}")
+        context_handler_map = {
+            "authors": handle_authors_callback,
+            "emails": handle_emails_callback,
+        }
+        callback_handler = context_handler_map.get(context)
+        if callback_handler:
+            callback_handler(client, callback_query, command)
+    except Exception as e:
+        print(f"Error in callback query: {e}")
+        callback_query.answer("An error occurred.")
 
 def handle_authors_callback(client, callback_query, command):
     if command.startswith("next") or command.startswith("previous"):
