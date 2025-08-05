@@ -5,7 +5,7 @@ from utils import config
 from webpages.models import Author
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, filename='telegram_bot.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 TELEGRAM_GROUP_ID = int(os.getenv("TELEGRAM_GROUP_ID")) if os.getenv("TELEGRAM_GROUP_ID") else None
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
