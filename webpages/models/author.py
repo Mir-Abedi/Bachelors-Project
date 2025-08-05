@@ -13,6 +13,8 @@ class Author(models.Model):
     works = models.JSONField(null=True, blank=True)
     openalex_called = models.BooleanField(default=False)
     openalex_retries = models.IntegerField(default=0)
+    suggested_email = models.TextField(null=True, blank=True, max_length=5000)
+    suggested_email_subject = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.name
