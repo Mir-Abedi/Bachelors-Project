@@ -2,3 +2,4 @@ llm-agent/*
 *__pycache__
 db.sqlite3
 *.session
+*.session-journal
