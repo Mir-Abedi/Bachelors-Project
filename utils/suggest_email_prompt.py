@@ -27,6 +27,7 @@ Please draft:
 2. A professional and friendly email body inviting them to give a talk.
 
 Once both are ready, **call the `save_suggested_email` tool** to save them.
+DO NOT USE ANYTHING THAT SHOULD BE FILLED IN LATER, like [YOUR NAME] or [YOUR INSTITUTION].
 """
 
 class SaveEmailPrompt:

@@ -207,8 +207,9 @@ def save_suggested_email(body: str, subject: str) -> str:
         CURRENT_AUTHOR_EMAIL_SUGGESTION.suggested_email = body
         CURRENT_AUTHOR_EMAIL_SUGGESTION.suggested_email_subject = subject
         CURRENT_AUTHOR_EMAIL_SUGGESTION.save()
+        return "Email saved successfully"
     except Exception as e:
-        return "Author not saved"
+        return "Email not saved"
 
 @shared_task(time_limit=3600*3)
 def suggest_email_to_authors():

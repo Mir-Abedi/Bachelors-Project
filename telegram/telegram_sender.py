@@ -122,7 +122,7 @@ def handle_emails_callback(client, callback_query, command):
         callback_query.edit_message_text(text=message, reply_markup=keyboard)
     elif command.startswith("doublecheck"):
         author_id, page_number = map(int, command.split("_")[1:])
-        keyboard, message = make_keyboard_and_message_for_doouble_check(author_id)
+        keyboard, message = make_keyboard_and_message_for_double_check(author_id, page_number)
         callback_query.edit_message_text(text=message, reply_markup=keyboard)
     elif command.startswith("send"):
         author_id = int(command.split("_")[1])
@@ -190,7 +190,7 @@ Suggested Email: `{author.suggested_email}`"""
     keyboard = pyrogram.types.InlineKeyboardMarkup(list_buttons)
     return keyboard, message
 
-def make_keyboard_and_message_for_doouble_check(author_id, page_number):
+def make_keyboard_and_message_for_double_check(author_id, page_number):
     author = Author.objects.get(id=author_id)
     message = f"""Are you sure you want to send email to {author.name}?"""
     list_buttons = [
