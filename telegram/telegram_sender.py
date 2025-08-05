@@ -107,7 +107,7 @@ Email: {author.email or "Not specified"}
 {('[ORCID URL](' + author.orcid_url + ')') if author.orcid_url else "ORC_ID: Not specified"}
 {('[OPELALEX URL](' + author.openalex_url + ')') if author.openalex_url else "OpenAlex URL: Not specified"}"""
     list_buttons = [
-        [pyrogram.types.InlineKeyboardButton("Send Email", callback_data=f"emails&{author.id}"),
+        [pyrogram.types.InlineKeyboardButton("Send Email", callback_data=f"emails&{author.id}_0"),
         pyrogram.types.InlineKeyboardButton("Back to authors", callback_data=f"authors&next_{current_page}")],
     ]
     if not author.email:
