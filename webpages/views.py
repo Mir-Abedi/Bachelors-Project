@@ -67,7 +67,7 @@ class AuthorDetailView(ListView):
         author_id = self.kwargs.get('author_id')
         author = Author.objects.get(id=author_id)
         works = [i["title"] for i in author.works["results"]] if author.works else []
-        author.works_list = works
+        author.works_list = works[:5]
         return author
 
 def add_webpage(request):
@@ -94,5 +94,24 @@ def update_author_email(request, author_id):
             messages.success(request, "Email updated successfully!")
         else:
             messages.error(request, "Please provide a valid email address.")
+    
+    return redirect('author_detail', author_id=author_id)
+
+def SendEmailView(request, author_id):
+    author = get_object_or_404(Author, id=author_id)
+    
+    if request.method == 'POST':
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        if subject and message:
+            # Here you would implement the logic to send the email
+            # For now, we just simulate it
+            author.suggested_email_subject = subject
+            author.suggested_email = message
+            author.save()
+            messages.success(request, "Email sent successfully!")
+        else:
+            messages.error(request, "Please provide both subject and message.")
     
     return redirect('author_detail', author_id=author_id)

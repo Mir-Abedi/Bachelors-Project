@@ -259,7 +259,7 @@ def notify_new_authors():
         else:
             return
         new_authors.update(notified_found=True)
-        telegram_sender.send_telegram_notification(message=message)
+        telegram_sender.send_telegram_notification.delay(message=message)
 
 @shared_task(time_limit=3600*3)
 def notify_sending_email():
@@ -267,7 +267,7 @@ def notify_sending_email():
         new_authors = Author.objects.filter(notified_email=False, suggested_email__isnull=False)
         base_url = config("BASE_URL", default="http://localhost:8000/")
         if new_authors.count() == 1:
-            message = f"Suggested email for author [{new_authors.first().name}]({base_url}/author/{new_authors.first().id}) is ready, send them their [email]({new_authors.first().name}]({base_url}/author/{new_authors.first().id}/send_email/)."
+            message = f"Suggested email for author [{new_authors.first().name}]({base_url}/author/{new_authors.first().id}) is ready, send them their [email]({new_authors.first().name}]({base_url}/author/{new_authors.first().id}/send-email/)."
         if new_authors.count() == 2:
             message = f"Suggested email for authors [{new_authors.first().name}]({base_url}/author/{new_authors.first().id}) and [{new_authors.last().name}]({base_url}/author/{new_authors.last().id}) is ready, send them their [emails]({base_url}/authors)."
         if new_authors.count() > 2:
@@ -275,5 +275,5 @@ def notify_sending_email():
         else:
             return
         new_authors.update(notified_email=True)
-        telegram_sender.send_telegram_notification(message=message)
+        telegram_sender.send_telegram_notification.delay(message=message)
 

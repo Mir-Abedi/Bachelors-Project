@@ -10,4 +10,5 @@ urlpatterns = [
     path('webpage/<int:pk>/', views.WebPageDetailView.as_view(), name='webpage_detail'),
     path('author/<int:author_id>/update-email/', views.update_author_email, name='update_author_email'),
     path('author/<int:author_id>/', views.AuthorDetailView.as_view(), name='author_detail'),
+    path('author/<int:author_id>/send-email/', views.SendEmailView.as_view(), name='update_author_interests'),
 ]

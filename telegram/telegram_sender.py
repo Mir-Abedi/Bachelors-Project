@@ -126,7 +126,7 @@ def handle_emails_callback(client, callback_query, command):
     elif command.startswith("send"):
         # todo: send email to author
         author_id = int(command.split("_")[1])
-        keyboard, message = make_keyboard_and_message_for_send_email(author_id)
+        keyboard, message = make_keyboard_and_message_for_send-email(author_id)
         callback_query.edit_message_text(text=message, reply_markup=keyboard)
     else:
         author_id, current_page = map(int, command.split("_"))
@@ -176,7 +176,7 @@ Suggested Email: `{author.suggested_email}`"""
     list_buttons = [
         [pyrogram.types.InlineKeyboardButton("Send Email", callback_data=f"emails&doublecheck_{author.id}_{current_page}"),
         pyrogram.types.InlineKeyboardButton("Back to emails list", callback_data=f"emails&next_{current_page}")],
-        [pyrogram.types.InlineKeyboardButton("Send Email Page", url=BASE_URL + f"author/{author.id}/send_email/")]
+        [pyrogram.types.InlineKeyboardButton("Send Email Page", url=BASE_URL + f"author/{author.id}/send-email/")]
     ]
     keyboard = pyrogram.types.InlineKeyboardMarkup(list_buttons)
     return keyboard, message
@@ -203,8 +203,8 @@ def handle_emails(client, message):
     if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
         message.reply_text("Command not allowed here")
     else:
-        # todo send message with buttons
-        pass
+        keyboard, message_text = make_keyboard_and_message_for_emails(0)
+        message.reply_text(text=message_text, reply_markup=keyboard)
 
 def ensure_telegram_config():
     if not TELEGRAM_API_HASH or not TELEGRAM_BOT_TOKEN or not TELEGRAM_API_ID:
@@ -215,10 +215,30 @@ def run_telegram_bot():
     print("Starting Telegram bot...")
     app.run()
 
+@shared_task
 def send_telegram_notification(message: str, keyboard=None):
     ensure_telegram_config()
     if TELEGRAM_GROUP_ID is None:
         raise ValueError("Telegram group ID is not set.")
-    
-    with app:
-        app.send_message(chat_id=TELEGRAM_GROUP_ID, text=message, reply_markup=keyboard)
+    temp_app = pyrogram.Client("temp_bot", bot_token=TELEGRAM_BOT_TOKEN, api_hash=TELEGRAM_API_HASH, api_id=TELEGRAM_API_ID)
+    with temp_app:
+        try:
+            # Get the group peer first to ensure it's in the session
+            group_peer = temp_app.get_chat(TELEGRAM_GROUP_ID)
+            logging.info(f"Group peer resolved: {group_peer}")
+            
+            # Send the message
+            temp_app.send_message(
+                chat_id=TELEGRAM_GROUP_ID,
+                text=message,
+                reply_markup=keyboard,
+            )
+            logging.info(f"Sent message to Telegram group {TELEGRAM_GROUP_ID}: {message}")
+            
+        except pyrogram.errors.PeerIdInvalid:
+            logging.error(f"Invalid group peer ID: {TELEGRAM_GROUP_ID}")
+            raise
+        except Exception as e:
+            logging.error(f"Failed to send Telegram notification: {str(e)}")
+            raise
+    logging.info(f"Sent message to Telegram group {TELEGRAM_GROUP_ID}: {message}")
