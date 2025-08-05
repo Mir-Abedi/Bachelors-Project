@@ -5,7 +5,7 @@ from utils import config
 from webpages.models import Author
 import logging
 
-logging.basicConfig(level=logging.DEBUG, filename='telegram_bot.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, filename='telegram_bot.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 TELEGRAM_GROUP_ID = int(os.getenv("TELEGRAM_GROUP_ID")) if os.getenv("TELEGRAM_GROUP_ID") else None
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -39,6 +39,7 @@ def handle_authors(client, message):
 @app.on_callback_query
 def handle_callback_query(client, callback_query):
     try:
+        print("Recieved callback")
         print(f"Received callback query: {callback_query.data}")
         if callback_query.message.chat.id != TELEGRAM_GROUP_ID or callback_query.message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
             callback_query.answer("Command not allowed here")
