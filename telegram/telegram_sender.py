@@ -121,7 +121,6 @@ def ensure_telegram_config():
     if not TELEGRAM_API_HASH or not TELEGRAM_BOT_TOKEN or not TELEGRAM_API_ID:
         raise ValueError("Telegram group ID and bot token must be set in environment variables.")
 
-@shared_task(queue='telegram_queue')
 def run_telegram_bot():
     ensure_telegram_config()
     print("Starting Telegram bot...")
@@ -134,5 +133,3 @@ def send_telegram_notification(message: str, keyboard=None):
     
     with app:
         app.send_message(chat_id=TELEGRAM_GROUP_ID, text=message, reply_markup=keyboard)
-
-run_telegram_bot.delay()
