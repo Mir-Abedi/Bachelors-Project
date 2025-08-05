@@ -36,7 +36,7 @@ def handle_authors(client, message):
         keyboard, message_text = make_keyboard_and_message_for_authors(0)
         message.reply_text(text=message_text, reply_markup=keyboard)
 
-@app.on_callback_query
+@app.on_callback_query(pyrogram.filters.regex(r"^authors&") | pyrogram.filters.regex(r"^emails&"))
 def handle_callback_query(client, callback_query):
     try:
         print("Recieved callback")
