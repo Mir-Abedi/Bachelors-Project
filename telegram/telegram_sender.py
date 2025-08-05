@@ -20,17 +20,14 @@ def handle_notification(client, message):
 
 @app.on_message(pyrogram.filters.command("help"))
 def handle_help(client, message):
-    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in ["group", "supergroup"]:
+    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
         message.reply_text("This is a Telegram bot to send notifications for [LLM agent website](http://188.121.123.102:8000/).")
     else:
         message.reply_text("This is a Telegram bot to send notifications for [LLM agent website](http://188.121.123.102:8000/). \n/authors to see the authors of this project.\n/emails to see professors ready to send email.")
 
 @app.on_message(pyrogram.filters.command("authors"))
 def handle_authors(client, message):
-    print(message)
-    print(message.chat.id, TELEGRAM_GROUP_ID)
-    print(message.chat.type)
-    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in ["group", "supergroup"]:
+    if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
         message.reply_text("Command not allowed here")
     else:
         keyboard, message_text = make_keyboard_and_message_for_authors(0)
@@ -38,7 +35,7 @@ def handle_authors(client, message):
 
 @app.on_callback_query
 def handle_callback_query(client, callback_query):
-    if callback_query.message.chat.id != TELEGRAM_GROUP_ID or callback_query.message.chat.type != "group":
+    if callback_query.message.chat.id != TELEGRAM_GROUP_ID or callback_query.message.chat.type not in [pyrogram.enums.ChatType.GROUP, pyrogram.enums.ChatType.SUPERGROUP]:
         callback_query.answer("Command not allowed here")
     data = callback_query.data
     if not data:
