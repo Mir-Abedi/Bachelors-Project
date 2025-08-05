@@ -27,6 +27,7 @@ def handle_help(client, message):
 
 @app.on_message(pyrogram.filters.command("authors"))
 def handle_authors(client, message):
+    print(message)
     if message.chat.id != TELEGRAM_GROUP_ID or message.chat.type not in ["group", "supergroup"]:
         message.reply_text("Command not allowed here")
     else:
