@@ -161,6 +161,6 @@ CELERY_BEAT_SCHEDULE = {
     },
     "suggest-email-to-author": {
         "task": "webpages.tasks.suggest_email_to_authors",
-        "schedule": 60 * 5,  # Every 5 minutes
+        "schedule": 30,
     }
 }
