@@ -4,7 +4,7 @@ from celery import shared_task
 from utils import config
 from webpages.models import Author
 import logging
-from tools.email_sender import send_email
+from tools.email_sender import send_gmail
 
 logging.basicConfig(level=logging.INFO, filename='telegram_bot.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -127,7 +127,7 @@ def handle_emails_callback(client, callback_query, command):
     elif command.startswith("send"):
         author_id = int(command.split("_")[1])
         author = Author.objects.get(id=author_id)
-        send_email.delay(author.suggested_email, author.suggested_email_subject, author.email)
+        send_gmail.delay(author.suggested_email, author.suggested_email_subject, author.email)
         keyboard, message = make_keyboard_and_message_for_send_email(author_id)
         callback_query.edit_message_text(text=message, reply_markup=keyboard)
     else:

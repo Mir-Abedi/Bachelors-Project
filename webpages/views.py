@@ -8,7 +8,7 @@ from django.db.models import Count, Q
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from django.views.generic.edit import FormView
-from tools.email_sender import send_email
+from tools.email_sender import send_gmail
 from django.conf import settings
 
 def index(request):
@@ -114,7 +114,7 @@ class SendEmailView(FormView):
         author = get_object_or_404(Author, id=author_id)
         subject = request.POST.get('subject')
         body = request.POST.get('body')
-        send_email.delay(
+        send_gmail.delay(
             body,
             subject,
             author.email,
