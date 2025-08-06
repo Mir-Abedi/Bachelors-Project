@@ -1,9 +1,8 @@
-import yagmail
 from utils import config
 import os
 from celery import shared_task
 import smtplib
-import socket
+from email.message import EmailMessage
 
 @shared_task
 def send_email(body, subject, reciever):
@@ -12,15 +11,18 @@ def send_email(body, subject, reciever):
     if not password:
         raise Exception("HOTMAIL_APP_PASSWORD not in env")
 
-    # Force IPv4 resolution of SMTP host
-    smtp_host = "smtp.office365.com"
-    smtp_port = 587
-    ipv4_host = socket.gethostbyname(smtp_host)
+    msg = EmailMessage()
+    msg["From"] = sender
+    msg["To"] = reciever
+    msg["Subject"] = subject
+    msg.set_content(body)
 
-    with smtplib.SMTP(ipv4_host, smtp_port) as server:
-        server.starttls()
-        server.login(sender, password)
-        message = f"Subject: {subject}\n\n{body}"
-        server.sendmail(sender, reciever, message)
-
-    print("Email sent successfully.")
+    try:
+        with smtplib.SMTP("smtp.office365.com", 587) as server:
+            server.starttls()
+            server.login(sender, password)
+            server.send_message(msg)
+            print("Email sent successfully.")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        raise e
